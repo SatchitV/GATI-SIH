@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GATI – Maharashtra GovTech Innovation Platform</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+*{font-family:'Inter',sans-serif;box-sizing:border-box;}
+body{margin:0;background:#f1f5f9;}
+.sidebar-active{background:rgba(255,255,255,0.18);border-left:3px solid rgba(255,255,255,0.95);}
+.sidebar-item:hover{background:rgba(255,255,255,0.1);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn 0.35s ease-out;}
+@keyframes fadeSlide{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.fade-slide{animation:fadeSlide 0.3s ease-out;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin 0.8s linear infinite;display:inline-block;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.pulse{animation:pulse 2s infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.float{animation:float 4s ease-in-out infinite;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:#f1f5f9;}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px;}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
+.modal-box{background:#fff;border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,0.22);width:100%;max-height:90vh;overflow-y:auto;}
+.card{background:#fff;border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.auth-input{width:100%;border:1.5px solid #e2e8f0;border-radius:12px;padding:11px 14px;font-size:14px;font-family:'Inter',sans-serif;color:#0f172a;background:#fff;box-sizing:border-box;transition:border 0.2s,box-shadow 0.2s;outline:none;}
+.auth-input:focus{border-color:#14b8a6;box-shadow:0 0 0 3px rgba(20,184,166,0.15);}
+.auth-input::placeholder{color:#94a3b8;}
+.auth-btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.auth-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,0.15);}
+.auth-btn:active{transform:translateY(0);}
+.role-card{border:2px solid #e2e8f0;border-radius:14px;padding:14px;cursor:pointer;transition:all 0.2s;background:#fff;display:flex;align-items:center;gap:12px;}
+.role-card:hover{border-color:#14b8a6;background:#f0fdfa;}
+.role-card.selected{border-color:#14b8a6;background:#f0fdfa;box-shadow:0 0 0 3px rgba(20,184,166,0.15);}
+input:focus,select:focus,textarea:focus{outline:2px solid #14b8a6;outline-offset:0;}
+
+/* ===== GATI responsive/mobile layer ===== */
+html,body,#root{width:100%;min-height:100%;}
+button,input,select,textarea{touch-action:manipulation;}
+button{min-height:36px;}
+.app-main{margin-left:216px;margin-top:56px;padding:24px;min-height:calc(100vh - 56px);}
+.app-content{max-width:1100px;margin:0 auto;}
+.app-sidebar{transition:transform .25s ease;}
+.mobile-menu-btn{display:none!important;}
+.mobile-sidebar-backdrop{display:none;}
+.workflow-strip{display:flex;align-items:stretch;gap:8px;overflow-x:auto;padding:4px 2px 10px;margin-bottom:18px;scrollbar-width:none;}
+.workflow-strip::-webkit-scrollbar{display:none;}
+.workflow-step{min-width:150px;flex:1;border:1px solid #e2e8f0;background:#fff;border-radius:12px;padding:11px 12px;}
+.workflow-step strong{display:block;font-size:11px;color:#0f172a;margin-bottom:3px;}
+.workflow-step span{display:block;font-size:10px;color:#64748b;line-height:1.4;}
+.mobile-only{display:none!important;}
+
+@media (max-width: 900px){
+  .auth-shell{flex-direction:column!important;min-height:100vh;}
+  .auth-side-panel{width:100%!important;min-height:210px!important;padding:28px 20px!important;}
+  .auth-side-panel>div{transform:none!important;}
+  .auth-side-panel .float{animation:none!important;}
+  .auth-side-panel [style*="margin-top:48px"]{margin-top:22px!important;}
+  .auth-shell>div:last-child{padding:28px 16px!important;align-items:stretch!important;justify-content:flex-start!important;}
+  .auth-shell>div:last-child>div{max-width:560px!important;margin:0 auto!important;}
+
+  .app-main{margin-left:0!important;padding:18px 14px 90px!important;}
+  .app-content{max-width:none!important;}
+  .app-sidebar{transform:translateX(-105%);width:280px!important;box-shadow:12px 0 30px rgba(0,0,0,.18);}
+  .app-sidebar.mobile-open{transform:translateX(0);}
+  .mobile-menu-btn{display:flex!important;}
+  .mobile-sidebar-backdrop{display:block;position:fixed;inset:56px 0 0 0;background:rgba(15,23,42,.45);z-index:350;}
+  .mobile-only{display:block!important;}
+  .desktop-role-label{display:none!important;}
+  /* Collapse multi-column inline React layouts on small screens. */
+  .app-main div[style*="grid-template-columns"]{grid-template-columns:1fr!important;}
+  .landing-feature-grid{grid-template-columns:1fr!important;}
+  .app-main div[style*="gridTemplateColumns"]{grid-template-columns:1fr!important;}
+  .app-main div[style*="display: grid"]{grid-template-columns:1fr!important;}
+  .app-main .card{width:100%;overflow:hidden;}
+  .app-main .card>div{max-width:100%;}
+  .app-main table{min-width:680px;}
+  .app-main{overflow-x:hidden;}
+  .app-main button{max-width:100%;}
+  .workflow-strip{margin-left:-2px;margin-right:-2px;}
+  .workflow-step{min-width:190px;flex:0 0 190px;}
+  .page-title{font-size:21px!important;}
+}
+
+@media (max-width: 600px){
+  .topbar-brand-sub{display:none!important;}
+  .topbar{padding:0 10px!important;gap:8px!important;}
+  .topbar-gov{display:none!important;}
+  .topbar-about{display:none!important;}
+  .topbar-user-label{display:none!important;}
+  .topbar-role-btn{padding:5px 7px!important;}
+  .topbar-role-btn>span:last-child{display:none!important;}
+  .app-main{padding:14px 10px 88px!important;}
+  .card{border-radius:13px!important;padding:14px!important;}
+  .stat-card-grid{grid-template-columns:1fr 1fr!important;}
+  .app-main [style*="font-size: 24px"],.app-main [style*="font-size:24px"]{font-size:21px!important;}
+  .modal-overlay{padding:8px!important;align-items:flex-end!important;}
+  .modal-box{max-height:94vh!important;border-radius:18px 18px 0 0!important;}
+  .modal-box>div{padding-left:16px!important;padding-right:16px!important;}
+  .auth-input{font-size:16px!important;} /* prevents iOS zoom */
+  .workflow-strip{padding-bottom:7px;}
+  .workflow-step{min-width:205px;}
+  .app-main .card{overflow-x:auto;}
+}
+
+@media (min-width:901px){
+  .mobile-sidebar-backdrop{display:none!important;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef} = React;
+
+/* ═══════════════════════════════════════
+   ROLE CONFIG
+═══════════════════════════════════════ */
+const ROLE_CFG = {
+  govt:{label:'Government Department',short:'Government',person:'Smt. Rekha Patil',dept:'Dept. of Health, Maharashtra',bg:'#0f766e',dark:'#134e4a',light:'#f0fdfa',accent:'#14b8a6',emoji:'🏛️'},
+  startup:{label:'Startup',short:'Startup',person:'Rohit Deshmukh',dept:'HealthAI Innovations Pvt Ltd',bg:'#1d4ed8',dark:'#1e3a8a',light:'#eff6ff',accent:'#3b82f6',emoji:'🚀'},
+  admin:{label:'MSInS',short:'MSInS',person:'Adv. Sheetal Naik',dept:'Maharashtra State Innovation Society',bg:'#7e22ce',dark:'#581c87',light:'#faf5ff',accent:'#a855f7',emoji:'🛡️'},
+};
+
+const ROLE_NAV = {
+  govt:['Dashboard','Challenges','Applications','Milestone Approvals','Scale-Up'],
+  startup:['Marketplace','My Application','Contracts','Pilot Workspace','Payments'],
+  admin:['Dashboard','Pipeline','Screening','Contracts','Pilot Verification','Audit Log'],
+};
+
+const NAV_ICON = {
+  Dashboard:'📊',Challenges:'📋',Applications:'📁','Milestone Approvals':'✅','Scale-Up':'🚀',
+  Marketplace:'🛒','My Application':'📄',Contracts:'📜','Pilot Workspace':'🔬',Payments:'💰',
+  Pipeline:'🔄',Screening:'🔎',Rankings:'🏆','Audit Log':'🗃️',
+  'Assigned Pilots':'🗺️','Evidence Review':'👁️','Site Visits':'📍',
+  Directory:'👥',About:'ℹ️',
+};
+
+/* ═══════════════════════════════════════
+   MOCK DATA
+═══════════════════════════════════════ */
+const MOCK_USERS = [
+  {email:'health@maharashtra.gov.in', password:'govt123', role:'govt', name:'Smt. Rekha Patil'},
+  {email:'rohit@healthai.in',         password:'start123',role:'startup',name:'Rohit Deshmukh'},
+  {email:'admin@msins.in',            password:'admin123', role:'admin', name:'Adv. Sheetal Naik'}
+];
+
+const CHALLENGES = [
+  {id:'C1',title:'AI-Powered Disease Surveillance System',dept:'Dept. of Health, Maharashtra',sector:'Health',budget:7500000,deadline:'2025-08-15',city:'Pune',status:'open',apps:8,desc:'Build a real-time AI dashboard integrating IDSP data to predict disease outbreaks across 100+ PHCs with <2h alerts.',kpis:[{name:'PHC Coverage',target:'100 PHCs',w:30},{name:'Alert Latency',target:'<2 hrs',w:40},{name:'Accuracy',target:'>90%',w:30}]},
+  {id:'C2',title:'Smart Irrigation Decision Support',dept:'Dept. of Agriculture, Maharashtra',sector:'Agriculture',budget:4200000,deadline:'2025-07-30',city:'Aurangabad',status:'open',apps:5,desc:'IoT + ML platform giving farmers actionable irrigation advice. Pilot in Marathwada covering 5,000 farmers.',kpis:[{name:'Farmer Adoption',target:'5000 farmers',w:40},{name:'Water Saved',target:'>20%',w:35},{name:'Crop Yield Gain',target:'+15%',w:25}]},
+  {id:'C3',title:'Real-Time Water Quality Monitoring',dept:'Maharashtra Jeevan Pradhikaran',sector:'Water',budget:3800000,deadline:'2025-09-01',city:'Nashik',status:'open',apps:4,desc:'IoT sensor network for 50 water distribution points in Nashik with public-facing quality dashboard.',kpis:[{name:'Sensor Uptime',target:'>99%',w:40},{name:'Data Latency',target:'<5 min',w:30},{name:'Public Access',target:'Mobile+Web',w:30}]},
+  {id:'C4',title:'Multimodal Transit Integration App',dept:'MSRTC, Maharashtra',sector:'Transport',budget:6000000,deadline:'2025-08-20',city:'Nagpur',status:'open',apps:6,desc:'Single app combining MSRTC, city buses, autos and metro for ticketing and real-time tracking across Nagpur.',kpis:[{name:'Modes Integrated',target:'4 modes',w:35},{name:'Daily Active Users',target:'>10,000',w:40},{name:'Trip Accuracy',target:'>95%',w:25}]},
+  {id:'C5',title:'Adaptive Learning for Tribal Schools',dept:'Tribal Development Dept., MH',sector:'Education',budget:2900000,deadline:'2025-07-15',city:'Gadchiroli',status:'closed',apps:3,desc:'Offline-first Marathi adaptive learning platform for tribal schools with teacher dashboards and parent SMS.',kpis:[{name:'Schools Covered',target:'50 schools',w:30},{name:'Learning Gain',target:'>25%',w:45},{name:'Retention',target:'>80%',w:25}]},
+  {id:'C6',title:'Automated Grievance Resolution System',dept:'General Administration Dept., MH',sector:'E-Gov',budget:5100000,deadline:'2025-09-15',city:'Mumbai',status:'open',apps:7,desc:'NLP-based system to auto-classify and resolve Aaple Sarkar grievances, cutting resolution from 30→7 days.',kpis:[{name:'Auto-Classification',target:'>85% accuracy',w:35},{name:'Resolution Time',target:'<7 days',w:40},{name:'Satisfaction',target:'>4/5',w:25}]},
+];
+
+const STARTUPS = [
+  {id:'S1',name:'HealthAI Innovations Pvt Ltd',gstin:'27AABCH1234F1Z5',dpiit:'DIPP12345',city:'Pune',founders:'Dr. Aarti Kulkarni, Rohit Deshmukh',cid:'C1',status:'passed',score:82,reason:'',urlScores:{Technology:88,Team:85,Financial:75,Compliance:90,Scalability:80,Market:72},milestones:[{id:'M1',title:'Sensor Deployment (25 PHCs)',due:'2025-03-15',status:'approved',evidence:true,amt:750000},{id:'M2',title:'Dashboard Live Launch',due:'2025-04-15',status:'approved',evidence:true,amt:1000000},{id:'M3',title:'AI Model Integration',due:'2025-05-15',status:'in-review',evidence:true,amt:1250000},{id:'M4',title:'Full Coverage (100 PHCs)',due:'2025-06-30',status:'pending',evidence:false,amt:1500000}]},
+  {id:'S2',name:'AgroSense Technologies',gstin:'27AABCA5678G2Z1',dpiit:'DIPP23456',city:'Aurangabad',founders:'Suresh Patil, Meena Jadhav',cid:'C2',status:'potential',score:79,reason:'',urlScores:{Technology:80,Team:78,Financial:72,Compliance:82,Scalability:76,Market:88},milestones:[{id:'M1',title:'Sensor Install (1000 farms)',due:'2025-03-20',status:'approved',evidence:true,amt:420000},{id:'M2',title:'Mobile App Beta',due:'2025-04-25',status:'in-review',evidence:true,amt:630000},{id:'M3',title:'ML Model Training',due:'2025-05-30',status:'pending',evidence:false,amt:840000}]},
+  {id:'S3',name:'AquaWatch Systems',gstin:'27AABCW9012H3Z8',dpiit:'DIPP34567',city:'Nashik',founders:'Vikram Nair, Priya Sharma',cid:'C3',status:'stage2',score:71,reason:'',urlScores:{Technology:70,Team:75,Financial:65,Compliance:78,Scalability:68,Market:72},milestones:[]},
+  {id:'S4',name:'TransitConnect Labs',gstin:'27AABCT3456I4Z2',dpiit:'DIPP45678',city:'Nagpur',founders:'Aditya Bhatt, Ritu Singh',cid:'C4',status:'stage1',score:0,reason:'',urlScores:{Technology:0,Team:0,Financial:0,Compliance:0,Scalability:0,Market:0},milestones:[]},
+  {id:'S5',name:'EduReach Bharat',gstin:'27AABCE7890J5Z6',dpiit:'DIPP56789',city:'Gadchiroli',founders:'Kavita More, Sandeep Gupta',cid:'C5',status:'contract',score:75,reason:'',urlScores:{Technology:76,Team:80,Financial:68,Compliance:74,Scalability:72,Market:78},milestones:[]},
+  {id:'S6',name:'GrievTech Solutions',gstin:'27AABCG2345K6Z9',dpiit:'DIPP67890',city:'Mumbai',founders:'Raj Mehta, Anjali Tiwari',cid:'C6',status:'passed',score:85,reason:'',urlScores:{Technology:88,Team:82,Financial:78,Compliance:92,Scalability:85,Market:80},milestones:[{id:'M1',title:'NLP Model v1',due:'2025-03-10',status:'approved',evidence:true,amt:510000},{id:'M2',title:'Pilot 1000 Grievances',due:'2025-04-10',status:'approved',evidence:true,amt:765000},{id:'M3',title:'Full Integration',due:'2025-05-20',status:'in-review',evidence:true,amt:1020000}]},
+  {id:'S7',name:'DataFarm Analytics',gstin:'27AABCD6789L7Z3',dpiit:'DIPP78901',city:'Kolhapur',founders:'Nilesh Pawar, Swati Joshi',cid:'C2',status:'rejected',score:0,reason:'DPIIT registration expired. Financial records show negative net worth for FY2024.',urlScores:{Technology:0,Team:0,Financial:0,Compliance:0,Scalability:0,Market:0},milestones:[]},
+  {id:'S8',name:'SmartCity Nexus',gstin:'27AABCS1234M8Z7',dpiit:'DIPP89012',city:'Thane',founders:'Harish Chandra, Deepa Naik',cid:'C4',status:'rejected',score:42,reason:'URL score 42/100 below threshold of 60. Team sub-score critically low (28/100).',urlScores:{Technology:55,Team:28,Financial:48,Compliance:62,Scalability:40,Market:38},milestones:[]},
+  {id:'S9',name:'WaterSafe IoT',gstin:'27AABCW5678N9Z4',dpiit:'DIPP90123',city:'Pune',founders:'Anand Kulkarni, Sunita Rane',cid:'C3',status:'stage3',score:68,reason:'',urlScores:{Technology:72,Team:68,Financial:62,Compliance:70,Scalability:65,Market:70},milestones:[]},
+  {id:'S10',name:'LearnBridge Technologies',gstin:'27AABCL9012O0Z1',dpiit:'DIPP01234',city:'Nagpur',founders:'Pooja Khatri, Manish Verma',cid:'C5',status:'stage2',score:55,reason:'',urlScores:{Technology:58,Team:60,Financial:52,Compliance:55,Scalability:50,Market:58},milestones:[]},
+  {id:'S11',name:'CivicTech Innovations',gstin:'27AABCC3456P1Z5',dpiit:'DIPP11234',city:'Mumbai',founders:'Zara Khan, Arjun Patel',cid:'C6',status:'failed',score:71,reason:'Milestone 2 rejected – evidence insufficient; KPI targets missed by >30%.',urlScores:{Technology:72,Team:70,Financial:68,Compliance:75,Scalability:65,Market:70},milestones:[{id:'M1',title:'Prototype Demo',due:'2025-02-28',status:'approved',evidence:true,amt:255000},{id:'M2',title:'Integration Test',due:'2025-03-28',status:'rejected',evidence:true,amt:382500}]},
+  {id:'S12',name:'Prayas Digital',gstin:'27AABCP7890Q2Z8',dpiit:'DIPP22345',city:'Solapur',founders:'Ramesh Sawant, Nisha Deokar',cid:'C1',status:'applied',score:0,reason:'',urlScores:{Technology:0,Team:0,Financial:0,Compliance:0,Scalability:0,Market:0},milestones:[]},
+];
+
+const AUDIT_LOG = [
+  {id:1,ts:'2025-06-10 09:15',actor:'Dept. of Health',role:'govt',type:'create',action:'Posted Challenge: AI-Powered Disease Surveillance System'},
+  {id:2,ts:'2025-06-11 11:30',actor:'HealthAI Innovations',role:'startup',type:'apply',action:'Applied to Challenge C1'},
+  {id:3,ts:'2025-06-12 14:00',actor:'MSInS',role:'admin',type:'screen',action:'Stage 1 PASSED – DPIIT verified via API Setu'},
+  {id:4,ts:'2025-06-13 10:00',actor:'MSInS',role:'admin',type:'screen',action:'Stage 2 PASSED – URL Score 82/100 (threshold: 60)'},
+  {id:5,ts:'2025-06-14 16:00',actor:'MSInS',role:'admin',type:'screen',action:'Stage 3 PASSED – KPI check cleared for Challenge C1'},
+  {id:6,ts:'2025-06-15 12:00',actor:'HealthAI Innovations',role:'startup',type:'contract',action:'IP & Payment contracts signed digitally via eSign (Aadhaar OTP)'},
+  {id:7,ts:'2025-06-16 09:00',actor:'Dept. of Health',role:'govt',type:'contract',action:'Contract countersigned – Pilot officially initiated'},
+  {id:8,ts:'2025-07-01 10:00',actor:'HealthAI Innovations',role:'startup',type:'milestone',action:'Milestone M1 evidence uploaded (25 PHC sensors geo-tagged)'},
+  {id:9,ts:'2025-07-03 14:00',actor:'Shri B. Ramane',role:'nodal',type:'visit',action:'Surprise site visit – Pune PHC Cluster – KPI score: 87/100'},
+  {id:10,ts:'2025-07-04 09:00',actor:'Dept. of Health',role:'govt',type:'payment',action:'Milestone M1 approved – ₹7,50,000 released via PFMS/DBT'},
+  {id:11,ts:'2025-07-15 11:00',actor:'HealthAI Innovations',role:'startup',type:'milestone',action:'Milestone M2 evidence uploaded (Dashboard live)'},
+  {id:12,ts:'2025-07-17 09:00',actor:'Dept. of Health',role:'govt',type:'payment',action:'Milestone M2 approved – ₹10,00,000 released via PFMS/DBT'},
+  {id:13,ts:'2025-06-12 09:00',actor:'DataFarm Analytics',role:'startup',type:'apply',action:'Applied to Challenge C2'},
+  {id:14,ts:'2025-06-13 10:00',actor:'MSInS',role:'admin',type:'screen',action:'Stage 1 FAILED – DataFarm Analytics: DPIIT expired'},
+  {id:15,ts:'2025-06-20 11:00',actor:'MSInS',role:'admin',type:'audit',action:'Random Audit triggered for Pilot C2-S2 (AgroSense Technologies)'},
+];
+
+/* ═══════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════ */
+const inr = n => '₹' + Number(n).toLocaleString('en-IN');
+const inrL = n => n>=100000 ? '₹'+(n/100000).toFixed(1)+'L' : inr(n);
+
+const SECTOR_COLOR = {Health:'#ef4444',Agriculture:'#22c55e',Water:'#3b82f6',Transport:'#f59e0b',Education:'#8b5cf6','E-Gov':'#06b6d4'};
+
+const STATUS_STYLE = {
+  passed:{bg:'#dcfce7',color:'#166534'},approved:{bg:'#dcfce7',color:'#166534'},
+  potential:{bg:'#fef9c3',color:'#854d0e'},failed:{bg:'#fee2e2',color:'#991b1b'},
+  rejected:{bg:'#fee2e2',color:'#991b1b'},'in-review':{bg:'#dbeafe',color:'#1e40af'},
+  pending:{bg:'#fef3c7',color:'#92400e'},open:{bg:'#dbeafe',color:'#1e40af'},
+  closed:{bg:'#f3f4f6',color:'#6b7280'},archived:{bg:'#f3f4f6',color:'#6b7280'},
+  stage1:{bg:'#ede9fe',color:'#5b21b6'},stage2:{bg:'#ede9fe',color:'#5b21b6'},
+  stage3:{bg:'#ede9fe',color:'#5b21b6'},contract:{bg:'#ccfbf1',color:'#065f46'},
+  pilot:{bg:'#e0e7ff',color:'#3730a3'},applied:{bg:'#dbeafe',color:'#1e40af'},
+  flagged:{bg:'#ffedd5',color:'#9a3412'},
+};
+const STAGE_LABEL = {applied:'Applied',stage1:'Doc Verification',stage2:'URL Scoring',stage3:'KPI Check',contract:'Contract',pilot:'Pilot',passed:'Passed',potential:'Potential',failed:'Failed',rejected:'Rejected'};
+
+/* ═══════════════════════════════════════
+   BASE UI
+═══════════════════════════════════════ */
+function Badge({s,label}){
+  const st=STATUS_STYLE[s]||{bg:'#f3f4f6',color:'#374151'};
+  return <span style={{display:'inline-flex',alignItems:'center',padding:'3px 10px',borderRadius:999,fontSize:11,fontWeight:700,letterSpacing:'0.04em',background:st.bg,color:st.color,whiteSpace:'nowrap'}}>{label||s?.toUpperCase()}</span>;
+}
+
+function Btn({children,onClick,variant='primary',size='md',disabled,style:ext}){
+  const sz={sm:{padding:'5px 12px',fontSize:12},md:{padding:'8px 18px',fontSize:13},lg:{padding:'11px 24px',fontSize:15}};
+  const v={primary:{background:'#0f172a',color:'#fff'},teal:{background:'#0f766e',color:'#fff'},blue:{background:'#1d4ed8',color:'#fff'},purple:{background:'#7e22ce',color:'#fff'},nodal:{background:'#0369a1',color:'#fff'},emerald:{background:'#059669',color:'#fff'},amber:{background:'#b45309',color:'#fff'},danger:{background:'#dc2626',color:'#fff'},outline:{background:'#fff',color:'#374151',border:'1px solid #d1d5db'},ghost:{background:'transparent',color:'#6b7280'}};
+  return <button onClick={disabled?undefined:onClick} disabled={disabled} style={{border:'none',borderRadius:10,cursor:disabled?'not-allowed':'pointer',fontWeight:600,fontFamily:'Inter,sans-serif',transition:'all 0.15s',opacity:disabled?0.5:1,display:'inline-flex',alignItems:'center',justifyContent:'center',gap:6,...sz[size],...v[variant],...(ext||{})}}>{children}</button>;
+}
+
+function Card({children,style}){return <div className="card" style={{padding:20,...style}}>{children}</div>;}
+
+function Input({label,value,onChange,type='text',placeholder,rows}){
+  const base={width:'100%',border:'1px solid #d1d5db',borderRadius:10,padding:'8px 12px',fontSize:13,color:'#111827',background:'#fff',fontFamily:'Inter,sans-serif',boxSizing:'border-box'};
+  return(
+    <div style={{marginBottom:14}}>
+      {label&&<label style={{display:'block',fontSize:12,fontWeight:600,color:'#374151',marginBottom:5}}>{label}</label>}
+      {rows?<textarea rows={rows} style={{...base,resize:'vertical'}} value={value} onChange={onChange} placeholder={placeholder}/>:<input type={type} style={base} value={value} onChange={onChange} placeholder={placeholder}/>}
+    </div>
+  );
+}
+
+function Select({label,value,onChange,options}){
+  return(
+    <div style={{marginBottom:14}}>
+      {label&&<label style={{display:'block',fontSize:12,fontWeight:600,color:'#374151',marginBottom:5}}>{label}</label>}
+      <select value={value} onChange={onChange} style={{width:'100%',border:'1px solid #d1d5db',borderRadius:10,padding:'8px 12px',fontSize:13,background:'#fff',fontFamily:'Inter,sans-serif',boxSizing:'border-box'}}>{options.map(o=><option key={o}>{o}</option>)}</select>
+    </div>
+  );
+}
+
+function StatCard({icon,label,value,sub,accentColor}){
+  return(
+    <Card style={{padding:20}}>
+      <div style={{display:'flex',alignItems:'flex-start',gap:14}}>
+        <div style={{width:46,height:46,borderRadius:14,background:accentColor+'18',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>{icon}</div>
+        <div>
+          <div style={{fontSize:26,fontWeight:900,color:'#0f172a',lineHeight:1}}>{value}</div>
+          <div style={{fontSize:13,fontWeight:600,color:'#374151',marginTop:3}}>{label}</div>
+          {sub&&<div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>{sub}</div>}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function Stepper({steps,current}){
+  return(
+    <div style={{display:'flex',alignItems:'center',marginBottom:24}}>
+      {steps.map((s,i)=>(
+        <React.Fragment key={i}>
+          <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}>
+            <div style={{width:32,height:32,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:800,fontSize:12,background:i<current?'#10b981':i===current?'#1d4ed8':'#e2e8f0',color:i<=current?'#fff':'#94a3b8',boxShadow:i===current?'0 0 0 4px #bfdbfe':'none',transition:'all 0.3s'}}>{i<current?'✓':i+1}</div>
+            <span style={{fontSize:10,marginTop:5,textAlign:'center',maxWidth:70,lineHeight:1.3,fontWeight:i===current?700:400,color:i<=current?'#1e293b':'#94a3b8'}}>{s}</span>
+          </div>
+          {i<steps.length-1&&<div style={{height:2,flex:1,minWidth:16,background:i<current?'#10b981':'#e2e8f0',margin:'0 4px',marginBottom:22,transition:'background 0.4s'}}/>}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+function Modal({open,onClose,title,children,wide}){
+  if(!open)return null;
+  return(
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" style={{maxWidth:wide?800:560}} onClick={e=>e.stopPropagation()}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 24px',borderBottom:'1px solid #e2e8f0',position:'sticky',top:0,background:'#fff',zIndex:10,borderRadius:'20px 20px 0 0'}}>
+          <span style={{fontWeight:800,fontSize:17,color:'#0f172a'}}>{title}</span>
+          <button onClick={onClose} style={{width:32,height:32,border:'none',background:'#f1f5f9',borderRadius:8,cursor:'pointer',fontSize:16,color:'#64748b',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+        </div>
+        <div style={{padding:24}}>{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function APICheck({label,pass,reason,delay}){
+  const [state,setState]=useState('loading');
+  useEffect(()=>{const t=setTimeout(()=>setState(pass?'pass':'fail'),delay||1000);return()=>clearTimeout(t);},[]);
+  const bg=state==='loading'?'#f8fafc':state==='pass'?'#f0fdf4':'#fef2f2';
+  const border=state==='loading'?'#e2e8f0':state==='pass'?'#86efac':'#fca5a5';
+  return(
+    <div style={{display:'flex',alignItems:'center',gap:12,padding:'10px 14px',borderRadius:12,background:bg,border:`1px solid ${border}`,marginBottom:8,transition:'all 0.3s'}}>
+      {state==='loading'?<div style={{width:18,height:18,border:'2px solid #3b82f6',borderTopColor:'transparent',borderRadius:'50%'}} className="spin"/>:state==='pass'?<div style={{width:20,height:20,background:'#10b981',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:11,fontWeight:800}}>✓</div>:<div style={{width:20,height:20,background:'#ef4444',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:11,fontWeight:800}}>✕</div>}
+      <div style={{flex:1}}>
+        <div style={{fontSize:13,fontWeight:600,color:'#0f172a'}}>{label}</div>
+        {state!=='loading'&&reason&&<div style={{fontSize:11,color:'#64748b',marginTop:2}}>{reason}</div>}
+      </div>
+      {state==='loading'?<span style={{fontSize:11,color:'#94a3b8'}} className="pulse">Checking…</span>:state==='pass'?<span style={{fontSize:11,fontWeight:800,color:'#059669'}}>PASS</span>:<span style={{fontSize:11,fontWeight:800,color:'#dc2626'}}>FAIL</span>}
+    </div>
+  );
+}
+
+function HBar({label,value,max=100,color}){
+  const pct=Math.round((value/max)*100);
+  return(
+    <div style={{marginBottom:10}}>
+      <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}><span style={{color:'#475569',fontWeight:500}}>{label}</span><span style={{fontWeight:800,color:'#0f172a'}}>{value}</span></div>
+      <div style={{height:9,background:'#f1f5f9',borderRadius:99,overflow:'hidden'}}><div style={{height:'100%',width:pct+'%',background:color||'#3b82f6',borderRadius:99,transition:'width 1s ease'}}/></div>
+    </div>
+  );
+}
+
+function BarChart({data,height=160}){
+  const max=Math.max(...data.map(d=>d.value),1);
+  return(
+    <div style={{display:'flex',alignItems:'flex-end',gap:8,height,paddingTop:8}}>
+      {data.map((d,i)=>(
+        <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
+          <span style={{fontSize:11,fontWeight:700,color:'#374151'}}>{d.value}</span>
+          <div style={{width:'100%',height:Math.max(4,(d.value/max)*(height-42)),background:d.color||'#3b82f6',borderRadius:'6px 6px 0 0',transition:'height 0.8s ease'}}/>
+          <span style={{fontSize:9,color:'#6b7280',textAlign:'center',lineHeight:1.2}}>{d.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DonutChart({data,size=120}){
+  const total=data.reduce((a,d)=>a+d.value,0)||1;
+  let angle=-90;
+  const cx=size/2,cy=size/2,r=size*0.38,ir=size*0.24;
+  const slices=data.map(d=>{
+    const sweep=(d.value/total)*360;
+    const a1=angle*(Math.PI/180),a2=(angle+sweep)*(Math.PI/180);
+    const x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);
+    const ix1=cx+ir*Math.cos(a1),iy1=cy+ir*Math.sin(a1),ix2=cx+ir*Math.cos(a2),iy2=cy+ir*Math.sin(a2);
+    const large=sweep>180?1:0;
+    const path=`M ${ix1} ${iy1} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} L ${ix2} ${iy2} A ${ir} ${ir} 0 ${large} 0 ${ix1} ${iy1} Z`;
+    angle+=sweep;
+    return{...d,path};
+  });
+  return(
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {slices.map((s,i)=><path key={i} d={s.path} fill={s.color} stroke="#fff" strokeWidth={2}/>)}
+      <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle" fontSize={size*0.13} fontWeight="900" fill="#0f172a">{total}</text>
+      <text x={cx} y={cy+size*0.13} textAnchor="middle" dominantBaseline="middle" fontSize={size*0.085} fill="#94a3b8">total</text>
+    </svg>
+  );
+}
+
+/* ═══════════════════════════════════════
+   AUTH PAGES
+═══════════════════════════════════════ */
+function AuthPage({onLogin}){
+  const [mode,setMode]=useState('landing'); // landing | login | signup
+  return(
+    <div style={{minHeight:'100vh',background:'linear-gradient(135deg,#020617 0%,#0f2040 45%,#020617 100%)',display:'flex',flexDirection:'column'}}>
+      {mode==='landing' && <AuthLanding onLogin={()=>setMode('login')} onSignup={()=>setMode('signup')}/>}
+      {mode==='login'   && <LoginPage onBack={()=>setMode('landing')} onLogin={onLogin} onSignup={()=>setMode('signup')}/>}
+      {mode==='signup'  && <SignupPage onBack={()=>setMode('landing')} onLogin={()=>setMode('login')}/>}
+    </div>
+  );
+}
+
+/* ── LANDING HERO ── */
+function AuthLanding({onLogin,onSignup}){
+  const features=[
+    {icon:'📋',title:'Post Challenges',desc:'Departments publish real problems with budgets and KPIs'},
+    {icon:'🚀',title:'Apply & Screen',desc:'Startups register and apply; MSInS performs 3-stage eligibility screening'},
+    {icon:'🔬',title:'Run Pilots',desc:'Milestone-linked pilots with geo-tagged evidence'},
+    {icon:'💰',title:'DBT Payments',desc:'PFMS payments unlock only after milestone approval'},
+    {icon:'🏆',title:'Verified Outcomes',desc:'Verified impact unlocks scale-up / procurement'},
+    {icon:'🛒',title:'Scale / Procure',desc:'Government can scale or procure solutions after verified pilot impact'},
+  ];
+  const stats=[{v:'6',l:'Active Challenges'},{v:'12',l:'Startups Onboarded'},{v:'₹29.75L',l:'Payments Released'},{v:'3',l:'Pilots Running'}];
+  return(
+    <div className="fade-in" style={{flex:1,display:'flex',flexDirection:'column'}}>
+      {/* Nav */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'20px 40px',borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <div style={{width:40,height:40,borderRadius:12,background:'linear-gradient(135deg,#14b8a6,#0d9488)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:900,fontSize:20}}>G</div>
+          <div>
+            <div style={{fontSize:20,fontWeight:900,color:'#fff',letterSpacing:'-0.5px'}}>GATI</div>
+            <div style={{fontSize:10,color:'rgba(255,255,255,0.4)',letterSpacing:'0.1em',textTransform:'uppercase'}}>GovTech Accelerator</div>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:12}}>
+          <button onClick={onLogin} style={{padding:'8px 24px',border:'1px solid rgba(255,255,255,0.25)',borderRadius:10,background:'transparent',color:'#fff',fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:'Inter,sans-serif',transition:'all 0.2s'}}>Log In</button>
+          <button onClick={onSignup} style={{padding:'8px 24px',border:'none',borderRadius:10,background:'linear-gradient(135deg,#14b8a6,#0d9488)',color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'Inter,sans-serif',transition:'all 0.2s',boxShadow:'0 4px 16px rgba(20,184,166,0.4)'}}>Sign Up</button>
+        </div>
+      </div>
+      {/* Hero */}
+      <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'60px 24px 40px',textAlign:'center'}}>
+        <div style={{fontSize:11,fontWeight:700,color:'#14b8a6',letterSpacing:'0.2em',textTransform:'uppercase',marginBottom:20,background:'rgba(20,184,166,0.1)',border:'1px solid rgba(20,184,166,0.3)',padding:'5px 16px',borderRadius:99}}>
+          Government of Maharashtra · MSInS · Startup Innovation Platform
+        </div>
+        <h1 style={{fontSize:60,fontWeight:900,color:'#fff',letterSpacing:'-2px',lineHeight:1.05,marginBottom:20,maxWidth:700}}>
+          Where Government<br/><span style={{color:'#14b8a6'}}>Meets Innovation</span>
+        </h1>
+        <p style={{fontSize:18,color:'rgba(255,255,255,0.55)',maxWidth:520,lineHeight:1.7,marginBottom:36}}>
+          GATI connects Government and startups through MSInS — from challenge definition and eligibility screening to contracted pilots, verified impact and scale-up/procurement.
+        </p>
+        <div style={{display:'flex',gap:14,marginBottom:56}}>
+          <button onClick={onSignup} style={{padding:'14px 36px',border:'none',borderRadius:13,background:'linear-gradient(135deg,#14b8a6,#0d9488)',color:'#fff',fontSize:16,fontWeight:700,cursor:'pointer',fontFamily:'Inter,sans-serif',boxShadow:'0 8px 32px rgba(20,184,166,0.4)',transition:'all 0.2s'}}>
+            🚀 Get Started Free
+          </button>
+          <button onClick={onLogin} style={{padding:'14px 36px',border:'1px solid rgba(255,255,255,0.2)',borderRadius:13,background:'rgba(255,255,255,0.05)',color:'#fff',fontSize:16,fontWeight:600,cursor:'pointer',fontFamily:'Inter,sans-serif',transition:'all 0.2s'}}>
+            Log In →
+          </button>
+        </div>
+        {/* Stats */}
+        <div style={{display:'flex',gap:32,marginBottom:64}}>
+          {stats.map(s=>(
+            <div key={s.l} style={{textAlign:'center'}}>
+              <div style={{fontSize:28,fontWeight:900,color:'#14b8a6'}}>{s.v}</div>
+              <div style={{fontSize:11,color:'rgba(255,255,255,0.4)',marginTop:2}}>{s.l}</div>
+            </div>
+          ))}
+        </div>
+        {/* Feature grid */}
+        <div className="landing-feature-grid" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16,maxWidth:780,width:'100%'}}>
+          {features.map(f=>(
+            <div key={f.title} style={{background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:16,padding:'20px 18px',textAlign:'left',transition:'all 0.2s'}}>
+              <div style={{fontSize:28,marginBottom:10}}>{f.icon}</div>
+              <div style={{fontSize:14,fontWeight:700,color:'#fff',marginBottom:5}}>{f.title}</div>
+              <div style={{fontSize:12,color:'rgba(255,255,255,0.45)',lineHeight:1.5}}>{f.desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Footer */}
+      <div style={{textAlign:'center',padding:'20px',borderTop:'1px solid rgba(255,255,255,0.06)',fontSize:12,color:'rgba(255,255,255,0.25)'}}>
+        GATI · GovTech Accelerator & Tech Innovation · Government of Maharashtra © 2026
+      </div>
+    </div>
+  );
+}
+
+/* ── LOGIN PAGE ── */
+function LoginPage({onBack,onLogin,onSignup}){
+  const [email,setEmail]=useState('');
+  const [password,setPassword]=useState('');
+  const [showPass,setShowPass]=useState(false);
+  const [error,setError]=useState('');
+  const [loading,setLoading]=useState(false);
+  const [selectedRole,setSelectedRole]=useState(null);
+
+  const quickLogins=[
+    {role:'govt',  email:'health@maharashtra.gov.in',password:'govt123'},
+    {role:'startup',email:'rohit@healthai.in',        password:'start123'},
+    {role:'admin', email:'admin@msins.in',            password:'admin123'},  ];
+
+  const handleLogin=()=>{
+    setError('');
+    setLoading(true);
+    setTimeout(()=>{
+      const user=MOCK_USERS.find(u=>u.email===email&&u.password===password);
+      if(user){onLogin(user.role,user);}
+      else{setError('Invalid email or password. Try a quick login below.');setLoading(false);}
+    },1000);
+  };
+
+  const quickLogin=(ql)=>{
+    setEmail(ql.email);setPassword(ql.password);setSelectedRole(ql.role);
+    setTimeout(()=>{
+      const user=MOCK_USERS.find(u=>u.email===ql.email);
+      if(user)onLogin(user.role,user);
+    },600);
+  };
+
+  return(
+    <div className="fade-in auth-shell" style={{flex:1,display:'flex'}}>
+      {/* Left panel */}
+      <div className="auth-side-panel" style={{width:'45%',background:'linear-gradient(160deg,#0d9488,#0f766e,#134e4a)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:48,position:'relative',overflow:'hidden'}}>
+        <div style={{position:'absolute',top:-60,right:-60,width:200,height:200,borderRadius:'50%',background:'rgba(255,255,255,0.05)'}}/>
+        <div style={{position:'absolute',bottom:-40,left:-40,width:150,height:150,borderRadius:'50%',background:'rgba(255,255,255,0.05)'}}/>
+        <div className="float" style={{textAlign:'center',position:'relative',zIndex:1}}>
+          <div style={{width:80,height:80,borderRadius:24,background:'rgba(255,255,255,0.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:38,fontWeight:900,color:'#fff',margin:'0 auto 20px',backdropFilter:'blur(8px)',border:'1px solid rgba(255,255,255,0.2)'}}>G</div>
+          <div style={{fontSize:36,fontWeight:900,color:'#fff',letterSpacing:'-1px',marginBottom:6}}>GATI</div>
+          <div style={{fontSize:13,color:'rgba(255,255,255,0.7)',marginBottom:32,letterSpacing:'0.05em'}}>GovTech Accelerator & Tech Innovation</div>
+          <div style={{fontSize:14,color:'rgba(255,255,255,0.6)',lineHeight:1.8,maxWidth:280}}>
+            Maharashtra's end-to-end platform connecting government departments with innovative startups.
+          </div>
+        </div>
+        <div style={{marginTop:48,display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,width:'100%',maxWidth:300,position:'relative',zIndex:1}}>
+          {[{icon:'📋',t:'6 Challenges'},{icon:'🚀',t:'12 Startups'},{icon:'💰',t:'₹29.75L Paid'},{icon:'🔬',t:'3 Pilots'}].map(x=>(
+            <div key={x.t} style={{background:'rgba(255,255,255,0.1)',borderRadius:12,padding:'12px',textAlign:'center',backdropFilter:'blur(4px)'}}>
+              <div style={{fontSize:20,marginBottom:4}}>{x.icon}</div>
+              <div style={{fontSize:11,fontWeight:700,color:'#fff'}}>{x.t}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Right panel */}
+      <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'40px 48px',background:'#fff',overflowY:'auto'}}>
+        <div style={{width:'100%',maxWidth:420}}>
+          <button onClick={onBack} style={{border:'none',background:'none',cursor:'pointer',fontSize:13,color:'#94a3b8',fontFamily:'Inter,sans-serif',marginBottom:28,display:'flex',alignItems:'center',gap:6,padding:0}}>← Back to home</button>
+          <div style={{fontSize:28,fontWeight:900,color:'#0f172a',marginBottom:4}}>Welcome back 👋</div>
+          <div style={{fontSize:14,color:'#64748b',marginBottom:32}}>Log in to your GATI account</div>
+          {/* Form */}
+          <div style={{marginBottom:16}}>
+            <label style={{display:'block',fontSize:12,fontWeight:700,color:'#374151',marginBottom:6}}>Email Address</label>
+            <input className="auth-input" type="email" placeholder="your@email.gov.in" value={email} onChange={e=>{setEmail(e.target.value);setError('');}}/>
+          </div>
+          <div style={{marginBottom:8}}>
+            <label style={{display:'block',fontSize:12,fontWeight:700,color:'#374151',marginBottom:6}}>Password</label>
+            <div style={{position:'relative'}}>
+              <input className="auth-input" type={showPass?'text':'password'} placeholder="Enter your password" value={password} onChange={e=>{setPassword(e.target.value);setError('');}} style={{paddingRight:44}}/>
+              <button onClick={()=>setShowPass(v=>!v)} style={{position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',border:'none',background:'none',cursor:'pointer',fontSize:16,color:'#94a3b8'}}>
+                {showPass?'🙈':'👁️'}
+              </button>
+            </div>
+          </div>
+          <div style={{textAlign:'right',marginBottom:20}}>
+            <button style={{border:'none',background:'none',cursor:'pointer',fontSize:12,color:'#0d9488',fontFamily:'Inter,sans-serif',fontWeight:600}}>Forgot password?</button>
+          </div>
+          {error&&<div style={{background:'#fef2f2',border:'1px solid #fca5a5',borderRadius:10,padding:'10px 14px',fontSize:12,color:'#dc2626',marginBottom:16}}>{error}</div>}
+          <button className="auth-btn" onClick={handleLogin} disabled={loading||!email||!password}
+            style={{background:'linear-gradient(135deg,#14b8a6,#0d9488)',color:'#fff',opacity:loading||!email||!password?0.7:1,cursor:loading||!email||!password?'not-allowed':'pointer',marginBottom:20}}>
+            {loading?<><span className="spin" style={{width:16,height:16,border:'2px solid #fff',borderTopColor:'transparent',borderRadius:'50%',display:'inline-block'}}/>Logging in…</>:'🔐 Log In'}
+          </button>
+          <div style={{textAlign:'center',fontSize:13,color:'#64748b',marginBottom:24}}>
+            Don't have an account?{' '}
+            <button onClick={onSignup} style={{border:'none',background:'none',cursor:'pointer',color:'#0d9488',fontWeight:700,fontSize:13,fontFamily:'Inter,sans-serif'}}>Sign Up</button>
+          </div>
+          {/* Quick login */}
+          <div style={{borderTop:'1px solid #e2e8f0',paddingTop:20}}>
+            <div style={{fontSize:11,fontWeight:700,color:'#94a3b8',textAlign:'center',marginBottom:12,textTransform:'uppercase',letterSpacing:'0.06em'}}>Quick Login (Demo)</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+              {quickLogins.map(ql=>{
+                const r=ROLE_CFG[ql.role];
+                return(
+                  <button key={ql.role} onClick={()=>quickLogin(ql)}
+                    style={{border:`1.5px solid ${selectedRole===ql.role?r.bg:'#e2e8f0'}`,borderRadius:12,padding:'10px 12px',background:selectedRole===ql.role?r.bg+'10':'#fff',cursor:'pointer',textAlign:'left',transition:'all 0.15s',fontFamily:'Inter,sans-serif'}}>
+                    <div style={{fontSize:16,marginBottom:4}}>{r.emoji}</div>
+                    <div style={{fontSize:11,fontWeight:700,color:'#0f172a'}}>{r.label}</div>
+                    <div style={{fontSize:10,color:'#94a3b8',marginTop:1}}>{r.person}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── SIGNUP PAGE ── */
+function SignupPage({onBack,onLogin}){
+  const [step,setStep]=useState(0); // 0=role, 1=details, 2=verify, 3=done
+  const [role,setRole]=useState('');
+  const [form,setForm]=useState({name:'',org:'',email:'',phone:'',password:'',confirm:'',gstin:'',dpiit:'',dept:''});
+  const [showPass,setShowPass]=useState(false);
+  const [error,setError]=useState('');
+  const [loading,setLoading]=useState(false);
+
+  const roles=[
+    {key:'govt',  label:'Government Department', desc:'Post challenges, approve milestones, access scale-up', emoji:'🏛️', color:'#0f766e'},
+    {key:'startup',label:'Startup',               desc:'Apply to challenges, run pilots, receive PFMS payments', emoji:'🚀', color:'#1d4ed8'},
+    {key:'admin', label:'MSInS',            desc:'Run eligibility screening, contracts, pilot verification and audit', emoji:'🛡️', color:'#7e22ce'},
+  ];
+
+  const next=()=>{
+    if(step===0&&!role){setError('Please select your role.');return;}
+    if(step===1){
+      if(!form.name||!form.email||!form.password){setError('Please fill all required fields.');return;}
+      if(form.password!==form.confirm){setError('Passwords do not match.');return;}
+      if(form.password.length<6){setError('Password must be at least 6 characters.');return;}
+      setLoading(true);
+      setTimeout(()=>{setLoading(false);setStep(2);},1200);
+      return;
+    }
+    if(step===2){setStep(3);return;}
+    setError('');
+    setStep(s=>s+1);
+  };
+
+  return(
+    <div className="fade-in auth-shell" style={{flex:1,display:'flex'}}>
+      {/* Left */}
+      <div className="auth-side-panel" style={{width:'40%',background:'linear-gradient(160deg,#1e3a8a,#1d4ed8,#2563eb)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:48,position:'relative',overflow:'hidden'}}>
+        <div style={{position:'absolute',top:-80,right:-80,width:220,height:220,borderRadius:'50%',background:'rgba(255,255,255,0.05)'}}/>
+        <div style={{position:'absolute',bottom:-60,left:-60,width:180,height:180,borderRadius:'50%',background:'rgba(255,255,255,0.05)'}}/>
+        <div style={{position:'relative',zIndex:1,textAlign:'center'}}>
+          <div style={{width:72,height:72,borderRadius:22,background:'rgba(255,255,255,0.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:32,fontWeight:900,color:'#fff',margin:'0 auto 16px',border:'1px solid rgba(255,255,255,0.2)'}}>G</div>
+          <div style={{fontSize:32,fontWeight:900,color:'#fff',marginBottom:6}}>Join GATI</div>
+          <div style={{fontSize:13,color:'rgba(255,255,255,0.65)',marginBottom:36,lineHeight:1.6,maxWidth:260}}>Create your account and start participating in Maharashtra's GovTech innovation ecosystem.</div>
+          {/* Steps indicator */}
+          <div style={{display:'flex',flexDirection:'column',gap:12}}>
+            {['Select Your Role','Enter Details','Verify & OTP','Account Created'].map((s,i)=>(
+              <div key={i} style={{display:'flex',alignItems:'center',gap:12}}>
+                <div style={{width:28,height:28,borderRadius:'50%',background:i<=step?'rgba(255,255,255,0.9)':'rgba(255,255,255,0.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,color:i<=step?'#1d4ed8':'rgba(255,255,255,0.5)',flexShrink:0,transition:'all 0.3s'}}>{i<step?'✓':i+1}</div>
+                <span style={{fontSize:13,fontWeight:i===step?700:400,color:i<=step?'#fff':'rgba(255,255,255,0.4)',transition:'all 0.3s'}}>{s}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      {/* Right */}
+      <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'40px 48px',background:'#fff',overflowY:'auto'}}>
+        <div style={{width:'100%',maxWidth:460}}>
+          <button onClick={step===0?onBack:()=>setStep(s=>s-1)} style={{border:'none',background:'none',cursor:'pointer',fontSize:13,color:'#94a3b8',fontFamily:'Inter,sans-serif',marginBottom:24,display:'flex',alignItems:'center',gap:6,padding:0}}>← {step===0?'Back to home':'Previous step'}</button>
+
+          {/* STEP 0: Role */}
+          {step===0&&(
+            <div className="fade-slide">
+              <div style={{fontSize:26,fontWeight:900,color:'#0f172a',marginBottom:4}}>Choose your role</div>
+              <div style={{fontSize:14,color:'#64748b',marginBottom:28}}>Select how you'll participate on GATI</div>
+              <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:24}}>
+                {roles.map(r=>(
+                  <div key={r.key} className={`role-card${role===r.key?' selected':''}`} onClick={()=>{setRole(r.key);setError('');}}>
+                    <div style={{width:44,height:44,borderRadius:13,background:r.color+'18',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,flexShrink:0}}>{r.emoji}</div>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:14,fontWeight:700,color:'#0f172a'}}>{r.label}</div>
+                      <div style={{fontSize:11,color:'#64748b',marginTop:2}}>{r.desc}</div>
+                    </div>
+                    <div style={{width:20,height:20,borderRadius:'50%',border:`2px solid ${role===r.key?r.color:'#d1d5db'}`,background:role===r.key?r.color:'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all 0.2s'}}>
+                      {role===r.key&&<div style={{width:8,height:8,borderRadius:'50%',background:'#fff'}}/>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {error&&<div style={{background:'#fef2f2',border:'1px solid #fca5a5',borderRadius:10,padding:'10px 14px',fontSize:12,color:'#dc2626',marginBottom:14}}>{error}</div>}
+              <button className="auth-btn" onClick={next} style={{background:'linear-gradient(135deg,#14b8a6,#0d9488)',color:'#fff'}}>Continue →</button>
+            </div>
+          )}
+
+          {/* STEP 1: Details */}
+          {step===1&&(
+            <div className="fade-slide">
+              <div style={{fontSize:26,fontWeight:900,color:'#0f172a',marginBottom:4}}>Create your account</div>
+              <div style={{fontSize:14,color:'#64748b',marginBottom:24}}>
+                Signing up as <strong style={{color:ROLE_CFG[role]?.bg}}>{ROLE_CFG[role]?.label}</strong>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:4}}>
+                <div>
+                  <label style={{display:'block',fontSize:12,fontWeight:700,color:'#374151',marginBottom:5}}>Full Name *</label>
+                  <input className="auth-input" placeholder="Smt. Rekha Patil" value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}/>
+                </div>
+                <div>
+                  <label style={{display:'block',fontSize:12,fontWeight:700,color:'#374151',marginBottom:5}}>
+                    {role==='startup'?'Organisation':'Department / Organisation'} *
+                  </label>
+                  <input className="auth-input" placeholder={role==='startup'?'HealthAI Innovations':'Dept. of Health'} value={form.org} onChange={e=>setForm(f=>({...f,org:e.target.value}))}/>
+                </div>
+              </div>
+              <div style={{marginBottom:12}}>
+                <label style={{display:'block',fontSize:12,fontWeight:700,color:'#374151',marginBottom:5}}>Email Address *</label>
+                <input className="auth-input" type="email" placeholder={role==='govt'?'name@maharashtra.gov.in':role==='startup'?'name@startup.in':'name@msins.in'} value={form.email} onChange={e=>setForm(f=>({...f,email:e.target.value}))}/>
+              </div>
+              <div style={{marginBottom:12}}>
+                <label style={{display:'block',fontSize:12,fontWeight:700,color:'#374151',marginBottom:5}}>Mobile Number</label>
+                <input className="auth-input" type="tel" placeholder="+91 98765 43210" value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))}/>
+              </div>
+              {role==='startup'&&(
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:4}}>
+                  <div>
+                    <label style={{display:'block',fontSize:12,fontWeight:700,color:'#374151',marginBottom:5}}>GSTIN</label>
+                    <input className="auth-input" placeholder="27AABCH1234F1Z5" value={form.gstin} onChange={e=>setForm(f=>({...f,gstin:e.target.value}))} style={{fontFamily:'monospace'}}/>
+                  </div>
+                  <div>
+                    <label style={{display:'block',fontSize:12,fontWeight:700,color:'#374151',marginBottom:5}}>DPIIT Number</label>
+                    <input className="auth-input" placeholder="DIPP12345" value={form.dpiit} onChange={e=>setForm(f=>({...f,dpiit:e.target.value}))} style={{fontFamily:'monospace'}}/>
+                  </div>
+                </div>
+              )}
+              {role==='govt'&&(
+                <div style={{marginBottom:12}}>
+                  <label style={{display:'block',fontSize:12,fontWeight:700,color:'#374151',marginBottom:5}}>Department</label>
+                  <select className="auth-input" value={form.dept} onChange={e=>setForm(f=>({...f,dept:e.target.value}))}>
+                    <option value="">Select department…</option>
+                    {['Dept. of Health','Dept. of Agriculture','Maharashtra Jeevan Pradhikaran','MSRTC','Tribal Development Dept.','General Administration Dept.','Finance Dept.','IT Dept.'].map(d=><option key={d}>{d}</option>)}
+                  </select>
+                </div>
+              )}
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:4}}>
+                <div>
+                  <label style={{display:'block',fontSize:12,fontWeight:700,color:'#374151',marginBottom:5}}>Password *</label>
+                  <div style={{position:'relative'}}>
+                    <input className="auth-input" type={showPass?'text':'password'} placeholder="Min. 6 characters" value={form.password} onChange={e=>setForm(f=>({...f,password:e.target.value}))} style={{paddingRight:40}}/>
+                    <button onClick={()=>setShowPass(v=>!v)} style={{position:'absolute',right:10,top:'50%',transform:'translateY(-50%)',border:'none',background:'none',cursor:'pointer',fontSize:14,color:'#94a3b8'}}>
+                      {showPass?'🙈':'👁️'}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label style={{display:'block',fontSize:12,fontWeight:700,color:'#374151',marginBottom:5}}>Confirm Password *</label>
+                  <input className="auth-input" type="password" placeholder="Repeat password" value={form.confirm} onChange={e=>setForm(f=>({...f,confirm:e.target.value}))}/>
+                </div>
+              </div>
+              {error&&<div style={{background:'#fef2f2',border:'1px solid #fca5a5',borderRadius:10,padding:'10px 14px',fontSize:12,color:'#dc2626',marginBottom:12}}>{error}</div>}
+              <div style={{marginTop:16}}>
+                <button className="auth-btn" onClick={next} disabled={loading} style={{background:'linear-gradient(135deg,#14b8a6,#0d9488)',color:'#fff',opacity:loading?0.8:1}}>
+                  {loading?<><span className="spin" style={{width:16,height:16,border:'2px solid #fff',borderTopColor:'transparent',borderRadius:'50%',display:'inline-block'}}/>Verifying…</>:'Continue →'}
+                </button>
+              </div>
+              <div style={{textAlign:'center',fontSize:12,color:'#64748b',marginTop:16}}>
+                Already have an account?{' '}
+                <button onClick={onLogin} style={{border:'none',background:'none',cursor:'pointer',color:'#0d9488',fontWeight:700,fontSize:12,fontFamily:'Inter,sans-serif'}}>Log In</button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 2: OTP Verify */}
+          {step===2&&(
+            <div className="fade-slide">
+              <div style={{fontSize:26,fontWeight:900,color:'#0f172a',marginBottom:4}}>Verify your identity</div>
+              <div style={{fontSize:14,color:'#64748b',marginBottom:28}}>We've sent a 6-digit OTP to <strong>{form.email||'your email'}</strong> and your Aadhaar-linked mobile.</div>
+              <div style={{background:'#f0fdfa',border:'1px solid #99f6e4',borderRadius:14,padding:'16px 18px',marginBottom:24}}>
+                <div style={{fontSize:12,fontWeight:700,color:'#0f766e',marginBottom:8}}>GATI Verification (Simulated)</div>
+                <APICheck label="Email OTP Verification" pass={true} reason="OTP matched – email verified" delay={600}/>
+                <APICheck label="Aadhaar Mobile OTP" pass={true} reason="Mobile number linked to Aadhaar verified" delay={1200}/>
+                {role==='startup'&&<APICheck label="DPIIT Registration Check (API Setu)" pass={true} reason="DIPP12345 – Valid & Active" delay={1800}/>}
+                {role==='govt'&&<APICheck label="Government Employee Verification (Mahaswayam)" pass={true} reason="Employee ID verified in state directory" delay={1800}/>}
+              </div>
+              <button className="auth-btn" onClick={next} style={{background:'linear-gradient(135deg,#14b8a6,#0d9488)',color:'#fff'}}>✅ Complete Registration</button>
+            </div>
+          )}
+
+          {/* STEP 3: Success */}
+          {step===3&&(
+            <div className="fade-slide" style={{textAlign:'center'}}>
+              <div style={{width:80,height:80,borderRadius:'50%',background:'#f0fdf4',border:'3px solid #86efac',display:'flex',alignItems:'center',justifyContent:'center',fontSize:36,margin:'0 auto 20px'}}>✅</div>
+              <div style={{fontSize:28,fontWeight:900,color:'#0f172a',marginBottom:8}}>Welcome to GATI!</div>
+              <div style={{fontSize:14,color:'#64748b',marginBottom:6}}>Your account has been created as</div>
+              <div style={{fontSize:16,fontWeight:800,color:ROLE_CFG[role]?.bg,marginBottom:24}}>{ROLE_CFG[role]?.label}</div>
+              <div style={{background:'#f8fafc',borderRadius:14,padding:'16px 20px',marginBottom:28,textAlign:'left'}}>
+                <div style={{fontSize:12,fontWeight:700,color:'#374151',marginBottom:10}}>Account Details</div>
+                <div style={{fontSize:13,color:'#374151',marginBottom:4}}>📧 {form.email||'your@email.com'}</div>
+                <div style={{fontSize:13,color:'#374151',marginBottom:4}}>👤 {form.name||'Your Name'}</div>
+                <div style={{fontSize:13,color:'#374151'}}>🏢 {form.org||'Your Organisation'}</div>
+              </div>
+              <button className="auth-btn" onClick={onLogin} style={{background:'linear-gradient(135deg,#14b8a6,#0d9488)',color:'#fff',marginBottom:12}}>
+                🔐 Log In to GATI
+              </button>
+              <div style={{fontSize:12,color:'#94a3b8'}}>Your account is pending admin approval and will be active within 24 hours.</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════
+   TOP BAR
+═══════════════════════════════════════ */
+function TopBar({role,setRole,setPage,user,onLogout,onMenu}){
+  const [notifOpen,setNotifOpen]=useState(false);
+  const [roleOpen,setRoleOpen]=useState(false);
+  const cfg=ROLE_CFG[role];
+  const notifs=[
+    {id:1,text:'Milestone evidence submitted by HealthAI Innovations',time:'2h ago',read:false},
+    {id:2,text:'Eligibility screening completed for Prayas Digital',time:'4h ago',read:false},
+    {id:3,text:'New startup application received',time:'1d ago',read:true},
+    {id:4,text:'Milestone payment approved after verification',time:'2d ago',read:true},
+  ];
+  const unread=notifs.filter(n=>!n.read).length;
+  return(
+    <div className="topbar" style={{position:'fixed',top:0,left:0,right:0,zIndex:500,background:'#fff',borderBottom:'1px solid #e2e8f0',height:56,display:'flex',alignItems:'center',padding:'0 20px',gap:12,boxShadow:'0 1px 6px rgba(0,0,0,0.06)'}}>
+      <button className="mobile-menu-btn" onClick={onMenu} aria-label="Open menu" style={{width:38,height:38,border:'none',background:'#f8fafc',borderRadius:10,cursor:'pointer',alignItems:'center',justifyContent:'center',fontSize:20}}>☰</button>
+      <div style={{display:'flex',alignItems:'center',gap:10,width:216,flexShrink:0}}>
+        <div style={{width:36,height:36,borderRadius:10,background:'linear-gradient(135deg,#14b8a6,#0d9488)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:900,fontSize:18}}>G</div>
+        <div><div style={{fontSize:16,fontWeight:900,color:'#0f172a',lineHeight:1,letterSpacing:'-0.5px'}}>GATI</div><div className="topbar-brand-sub" style={{fontSize:10,color:'#94a3b8',lineHeight:1,marginTop:1}}>GovTech Accelerator</div></div>
+      </div>
+      <div className="topbar-gov" style={{height:28,width:1,background:'#e2e8f0'}}/>
+      <div className="topbar-gov" style={{fontSize:11,color:'#94a3b8',fontWeight:500}}>🏛️ Government of Maharashtra</div>
+      <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:8}}>
+        <div style={{position:'relative'}}>
+          <button onClick={()=>{setNotifOpen(v=>!v);setRoleOpen(false);}} style={{width:38,height:38,border:'none',background:'#f8fafc',borderRadius:10,cursor:'pointer',position:'relative',fontSize:18,display:'flex',alignItems:'center',justifyContent:'center'}}>
+            🔔{unread>0&&<span style={{position:'absolute',top:5,right:5,width:15,height:15,background:'#ef4444',borderRadius:'50%',color:'#fff',fontSize:9,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center'}}>{unread}</span>}
+          </button>
+          {notifOpen&&(
+            <div style={{position:'absolute',right:0,top:46,width:'min(310px,calc(100vw - 20px))',background:'#fff',borderRadius:16,boxShadow:'0 12px 40px rgba(0,0,0,0.15)',border:'1px solid #e2e8f0',zIndex:600}}>
+              <div style={{padding:'12px 16px',borderBottom:'1px solid #f1f5f9',fontWeight:700,fontSize:13,color:'#0f172a'}}>Notifications</div>
+              {notifs.map(n=><div key={n.id} style={{padding:'10px 16px',borderBottom:'1px solid #f8fafc',background:n.read?'#fff':'#eff6ff'}}><div style={{fontSize:12,color:'#1e293b',fontWeight:n.read?400:500}}>{n.text}</div><div style={{fontSize:10,color:'#94a3b8',marginTop:3}}>{n.time}</div></div>)}
+            </div>
+          )}
+        </div>
+        <button className="topbar-about" onClick={()=>setPage('About')} style={{border:'1px solid #e2e8f0',background:'#fff',borderRadius:10,padding:'5px 14px',fontSize:12,color:'#64748b',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}>ℹ️ About</button>
+        <div style={{position:'relative'}}>
+          <button className="topbar-role-btn" onClick={()=>{setRoleOpen(v=>!v);setNotifOpen(false);}} style={{display:'flex',alignItems:'center',gap:8,padding:'6px 14px',background:'#f8fafc',border:'1px solid #e2e8f0',borderRadius:10,cursor:'pointer',fontSize:13,fontWeight:600,color:'#374151'}}>
+            <div style={{width:26,height:26,borderRadius:'50%',background:cfg.bg,color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800}}>{(user?.name||cfg.person)[0]}</div>
+            <span className="topbar-user-label">{cfg.label}</span><span style={{color:'#94a3b8',fontSize:10}}>▾</span>
+          </button>
+          {roleOpen&&(
+            <div style={{position:'absolute',right:0,top:46,width:'min(260px,calc(100vw - 20px))',background:'#fff',borderRadius:16,boxShadow:'0 12px 40px rgba(0,0,0,0.15)',border:'1px solid #e2e8f0',zIndex:600,padding:8}}>
+              <div style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9',marginBottom:6}}><div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{user?.name||cfg.person}</div><div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>{user?.email||cfg.dept}</div><div style={{marginTop:6}}><Badge s={role} label={cfg.label}/></div></div>
+              <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',padding:'4px 8px 8px',textTransform:'uppercase',letterSpacing:'0.06em'}}>Switch Role (Demo)</div>
+              {Object.entries(ROLE_CFG).map(([key,r])=><button key={key} onClick={()=>{setRole(key);setRoleOpen(false);}} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'9px 10px',border:'none',borderRadius:10,background:role===key?'#f8fafc':'#fff',cursor:'pointer',textAlign:'left',fontFamily:'Inter,sans-serif'}}><div style={{width:30,height:30,borderRadius:'50%',background:r.bg,color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:800,flexShrink:0}}>{r.emoji}</div><div><div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{r.label}</div><div style={{fontSize:10,color:'#94a3b8'}}>{r.person}</div></div>{role===key&&<span style={{marginLeft:'auto',color:'#10b981',fontWeight:800}}>✓</span>}</button>)}
+              <div style={{borderTop:'1px solid #e2e8f0',marginTop:6,paddingTop:6}}><button onClick={onLogout} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'9px 10px',border:'none',borderRadius:10,background:'#fff',cursor:'pointer',textAlign:'left',fontFamily:'Inter,sans-serif',color:'#dc2626',fontWeight:600,fontSize:13}}>🚪 Log Out</button></div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════ */
+function Sidebar({role,page,setPage,mobileOpen,onClose}){
+  const cfg=ROLE_CFG[role];
+  const navs=ROLE_NAV[role];
+  const go=p=>{setPage(p);if(onClose)onClose();};
+  return(
+    <>
+      {mobileOpen&&<div className="mobile-sidebar-backdrop" onClick={onClose}/>}
+      <div className={`app-sidebar${mobileOpen?' mobile-open':''}`} style={{position:'fixed',left:0,top:56,bottom:0,width:216,background:cfg.bg,display:'flex',flexDirection:'column',zIndex:400,overflowY:'auto'}}>
+        <div style={{padding:'16px 16px 14px',borderBottom:'1px solid rgba(255,255,255,0.12)'}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <div>
+              <div style={{fontSize:10,fontWeight:700,color:'rgba(255,255,255,0.45)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:5}}>{cfg.label}</div>
+              <div style={{fontSize:14,fontWeight:700,color:'#fff'}}>{cfg.person}</div>
+              <div style={{fontSize:10,color:'rgba(255,255,255,0.45)',marginTop:3,lineHeight:1.4}}>{cfg.dept}</div>
+            </div>
+            <button className="mobile-only" onClick={onClose} style={{border:'none',background:'rgba(255,255,255,.12)',color:'#fff',borderRadius:8,width:32,height:32,cursor:'pointer'}}>✕</button>
+          </div>
+        </div>
+        <nav style={{flex:1,padding:'10px 0'}}>
+          {navs.map(n=><button key={n} onClick={()=>go(n)} className={page===n?'sidebar-active':'sidebar-item'} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'11px 18px',border:'none',background:'transparent',cursor:'pointer',textAlign:'left',color:page===n?'#fff':'rgba(255,255,255,0.72)',fontSize:13,fontWeight:page===n?700:500,transition:'all 0.15s',fontFamily:'Inter,sans-serif'}}><span style={{fontSize:15}}>{NAV_ICON[n]||'•'}</span>{n}</button>)}
+          <div style={{margin:'12px 18px 4px',borderTop:'1px solid rgba(255,255,255,0.12)',paddingTop:12}}>
+            {['Directory','About'].map(n=><button key={n} onClick={()=>go(n)} className={page===n?'sidebar-active':'sidebar-item'} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'9px 0',border:'none',background:'transparent',cursor:'pointer',textAlign:'left',color:page===n?'#fff':'rgba(255,255,255,0.45)',fontSize:12,fontWeight:page===n?600:400,fontFamily:'Inter,sans-serif'}}><span style={{fontSize:14}}>{NAV_ICON[n]||'•'}</span>{n}</button>)}
+          </div>
+        </nav>
+        <div style={{padding:'12px 16px',borderTop:'1px solid rgba(255,255,255,0.1)'}}><div style={{fontSize:10,color:'rgba(255,255,255,0.25)',textAlign:'center',lineHeight:1.5}}>GATI · GovTech Accelerator<br/>Govt. of Maharashtra © 2026</div></div>
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════
+   APP DETAIL (shared)
+═══════════════════════════════════════ */
+function AppDetail({s}){
+  const ch=CHALLENGES.find(c=>c.id===s.cid);
+  const stageIdx={applied:0,stage1:1,stage2:2,stage3:3,contract:4,pilot:5,passed:5,potential:5,failed:5,rejected:1};
+  const cur=stageIdx[s.status]||0;
+  const urlTotal=s.score>0?Object.values(s.urlScores).reduce((a,b)=>a+b,0)/6:0;
+  return(
+    <div>
+      <Stepper steps={['Applied','Doc Check','URL Score','KPI Check','Contract','Pilot']} current={cur}/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,fontSize:13,marginBottom:20,background:'#f8fafc',borderRadius:12,padding:'12px 16px'}}>
+        <div><span style={{color:'#94a3b8'}}>GSTIN: </span><span style={{fontFamily:'monospace',fontWeight:600}}>{s.gstin}</span></div>
+        <div><span style={{color:'#94a3b8'}}>DPIIT: </span><span style={{fontFamily:'monospace',fontWeight:600}}>{s.dpiit}</span></div>
+        <div><span style={{color:'#94a3b8'}}>Founders: </span><span style={{fontWeight:600}}>{s.founders}</span></div>
+        <div><span style={{color:'#94a3b8'}}>City: </span><span style={{fontWeight:600}}>{s.city}</span></div>
+        <div style={{gridColumn:'1/-1'}}><span style={{color:'#94a3b8'}}>Challenge: </span><span style={{fontWeight:600}}>{ch?.title}</span></div>
+      </div>
+      {s.status!=='applied'&&(
+        <div style={{marginBottom:20}}>
+          <div style={{fontWeight:700,fontSize:13,color:'#1e293b',marginBottom:8,display:'flex',alignItems:'center',gap:6}}>
+            <span style={{background:'#ede9fe',color:'#5b21b6',borderRadius:6,padding:'2px 8px',fontSize:11}}>Stage 1</span>Document Verification (API Setu)
+          </div>
+          <APICheck label="DPIIT Registration – Startup India" pass={!s.reason?.includes('DPIIT')} reason={s.reason?.includes('DPIIT')?s.reason:'Valid & active registration confirmed'} delay={600}/>
+          <APICheck label="GST Filing Status – Mahaswayam" pass={!s.reason?.includes('negative')} reason="Returns filed FY2024-25 – clear" delay={1100}/>
+          <APICheck label="Audited Financial Records" pass={s.status!=='rejected'||!s.reason?.includes('DPIIT')} reason={s.status==='rejected'&&s.reason?.includes('negative')?s.reason:'Net worth positive, verified'} delay={1600}/>
+        </div>
+      )}
+      {urlTotal>0&&(
+        <div style={{marginBottom:20}}>
+          <div style={{fontWeight:700,fontSize:13,color:'#1e293b',marginBottom:8,display:'flex',alignItems:'center',gap:6}}>
+            <span style={{background:'#ede9fe',color:'#5b21b6',borderRadius:6,padding:'2px 8px',fontSize:11}}>Stage 2</span>Universal Readiness Level (URL)
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:12,padding:'14px 16px'}}>
+            {Object.entries(s.urlScores).map(([k,v])=><HBar key={k} label={k} value={v} max={100} color={v>=70?'#10b981':v>=50?'#f59e0b':'#ef4444'}/>)}
+            <div style={{display:'flex',justifyContent:'space-between',borderTop:'1px solid #e2e8f0',paddingTop:10,marginTop:6}}>
+              <span style={{fontWeight:700,fontSize:14}}>Total URL Score</span>
+              <span style={{fontWeight:900,fontSize:18,color:urlTotal>=70?'#059669':urlTotal>=60?'#d97706':'#dc2626'}}>{urlTotal.toFixed(1)} / 100</span>
+            </div>
+          </div>
+        </div>
+      )}
+      {['stage3','contract','pilot','passed','potential','failed'].includes(s.status)&&urlTotal>=60&&(
+        <div style={{marginBottom:20}}>
+          <div style={{fontWeight:700,fontSize:13,color:'#1e293b',marginBottom:8,display:'flex',alignItems:'center',gap:6}}>
+            <span style={{background:'#ede9fe',color:'#5b21b6',borderRadius:6,padding:'2px 8px',fontSize:11}}>Stage 3</span>Challenge KPI Check
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:12,padding:'12px 16px'}}>
+            {ch?.kpis.map((k,i)=>(
+              <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'7px 0',borderBottom:'1px solid #e2e8f0'}}>
+                <span style={{fontSize:12,color:'#374151',fontWeight:500}}>{k.name}</span>
+                <div style={{display:'flex',gap:12,alignItems:'center'}}>
+                  <span style={{fontSize:12,color:'#64748b'}}>Target: <strong>{k.target}</strong></span>
+                  <span style={{fontSize:11,color:'#64748b'}}>Weight: {k.w}%</span>
+                  <span style={{fontSize:11,fontWeight:700,color:'#059669'}}>✓ MET</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {s.status==='rejected'&&(
+        <div style={{background:'#fef2f2',border:'1px solid #fca5a5',borderRadius:12,padding:14,marginBottom:16}}>
+          <div style={{fontWeight:700,color:'#dc2626',marginBottom:6,fontSize:14}}>❌ Application Rejected</div>
+          <div style={{fontSize:13,color:'#991b1b',lineHeight:1.6}}>{s.reason}</div>
+          <Btn variant="outline" size="sm" style={{marginTop:12,borderColor:'#fca5a5',color:'#dc2626'}}>📩 File Appeal</Btn>
+        </div>
+      )}
+      {s.milestones?.length>0&&(
+        <div>
+          <div style={{fontWeight:700,fontSize:13,color:'#1e293b',marginBottom:8}}>Pilot Milestones</div>
+          {s.milestones.map(m=>(
+            <div key={m.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 14px',background:'#f8fafc',borderRadius:10,marginBottom:6,border:'1px solid #e2e8f0'}}>
+              <div>
+                <div style={{fontSize:13,fontWeight:600,color:'#0f172a'}}>{m.title}</div>
+                <div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>Due: {m.due} · {inr(m.amt)}</div>
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                {m.evidence&&<span style={{fontSize:10,background:'#dbeafe',color:'#1e40af',padding:'2px 8px',borderRadius:6,fontWeight:600}}>📎 Evidence</span>}
+                <Badge s={m.status}/>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════
+   GOVT SCREENS
+═══════════════════════════════════════ */
+function GovtDashboard({setPage}){
+  const funnelData=[{label:'Applied',value:43,color:'#3b82f6'},{label:'Stage 1',value:35,color:'#8b5cf6'},{label:'Stage 2',value:22,color:'#f59e0b'},{label:'Stage 3',value:14,color:'#06b6d4'},{label:'Pilots',value:8,color:'#10b981'},{label:'Scaled',value:3,color:'#0d9488'}];
+  const pieData=[{label:'Passed',value:2,color:'#10b981'},{label:'Potential',value:1,color:'#f59e0b'},{label:'Failed',value:1,color:'#ef4444'},{label:'Rejected',value:2,color:'#94a3b8'},{label:'Pipeline',value:6,color:'#3b82f6'}];
+  return(
+    <div className="fade-in">
+      <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:24}}>
+        <div><div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px'}}>Government Dashboard</div><div style={{fontSize:13,color:'#64748b',marginTop:3}}>Welcome, Smt. Rekha Patil · Dept. of Health, Maharashtra</div></div>
+        <Btn variant="teal" onClick={()=>setPage('Challenges')}>+ Post New Challenge</Btn>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:20}}>
+        <StatCard icon="📋" label="Active Challenges" value="5" sub="1 closed" accentColor="#0f766e"/>
+        <StatCard icon="👥" label="Total Applications" value="43" sub="Across all challenges" accentColor="#3b82f6"/>
+        <StatCard icon="🔬" label="Pilots Running" value="3" sub="↑ 1 this month" accentColor="#8b5cf6"/>
+        <StatCard icon="💰" label="Payments Released" value="₹29.75L" sub="FY 2025-26" accentColor="#f59e0b"/>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16}}>
+        <Card><div style={{fontWeight:700,fontSize:15,color:'#0f172a',marginBottom:16}}>Application Funnel</div><BarChart data={funnelData} height={180}/></Card>
+        <Card>
+          <div style={{fontWeight:700,fontSize:15,color:'#0f172a',marginBottom:16}}>Pilot Outcome Distribution</div>
+          <div style={{display:'flex',alignItems:'center',gap:20}}>
+            <DonutChart data={pieData} size={130}/>
+            <div style={{flex:1}}>{pieData.map(d=><div key={d.label} style={{display:'flex',alignItems:'center',gap:8,marginBottom:9}}><div style={{width:10,height:10,borderRadius:3,background:d.color,flexShrink:0}}/><span style={{fontSize:12,color:'#374151',flex:1}}>{d.label}</span><span style={{fontSize:14,fontWeight:800,color:'#0f172a'}}>{d.value}</span></div>)}</div>
+          </div>
+        </Card>
+      </div>
+      <Card>
+        <div style={{fontWeight:700,fontSize:15,color:'#0f172a',marginBottom:16}}>Challenge Status Overview</div>
+        {CHALLENGES.map(c=>(
+          <div key={c.id} style={{display:'flex',alignItems:'center',gap:12,marginBottom:13}}>
+            <span style={{fontSize:10,fontWeight:700,background:SECTOR_COLOR[c.sector]+'20',color:SECTOR_COLOR[c.sector],padding:'3px 8px',borderRadius:6,minWidth:76,textAlign:'center'}}>{c.sector}</span>
+            <span style={{fontSize:12,flex:1,color:'#374151',fontWeight:500,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.title}</span>
+            <div style={{width:140,height:8,background:'#f1f5f9',borderRadius:99,overflow:'hidden',flexShrink:0}}><div style={{height:'100%',width:Math.round((c.apps/10)*100)+'%',background:SECTOR_COLOR[c.sector],borderRadius:99}}/></div>
+            <span style={{fontSize:11,color:'#94a3b8',width:56,textAlign:'right',flexShrink:0}}>{c.apps} apps</span>
+            <Badge s={c.status}/>
+          </div>
+        ))}
+      </Card>
+    </div>
+  );
+}
+
+function GovtChallenges(){
+  const [showCreate,setShowCreate]=useState(false);
+  const [done,setDone]=useState(false);
+  const [form,setForm]=useState({title:'',dept:'',sector:'Health',budget:'',deadline:'',desc:'',kpis:[{name:'',target:'',w:''}]});
+  const addKPI=()=>setForm(f=>({...f,kpis:[...f.kpis,{name:'',target:'',w:''}]}));
+  const submit=()=>{setDone(true);setTimeout(()=>{setShowCreate(false);setDone(false);},1600);};
+  return(
+    <div className="fade-in">
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:24}}>
+        <div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px'}}>Challenges</div>
+        <Btn variant="teal" onClick={()=>setShowCreate(true)}>+ Post Challenge</Btn>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+        {CHALLENGES.map(c=>(
+          <Card key={c.id} style={{border:`1px solid ${SECTOR_COLOR[c.sector]}30`}}>
+            <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:10}}>
+              <div>
+                <span style={{fontSize:10,fontWeight:700,background:SECTOR_COLOR[c.sector]+'20',color:SECTOR_COLOR[c.sector],padding:'3px 8px',borderRadius:6}}>{c.sector}</span>
+                <div style={{fontSize:15,fontWeight:800,color:'#0f172a',marginTop:8,lineHeight:1.3}}>{c.title}</div>
+                <div style={{fontSize:11,color:'#94a3b8',marginTop:3}}>{c.dept} · 📍 {c.city}</div>
+              </div>
+              <Badge s={c.status}/>
+            </div>
+            <div style={{fontSize:12,color:'#64748b',lineHeight:1.65,marginBottom:12}}>{c.desc}</div>
+            <div style={{display:'flex',gap:14,fontSize:12,color:'#64748b',borderTop:'1px solid #f1f5f9',paddingTop:10,marginBottom:12}}>
+              <span><strong style={{color:'#0f172a'}}>{inrL(c.budget)}</strong></span>
+              <span>⏳ {c.deadline}</span>
+              <span>👥 {c.apps} applied</span>
+            </div>
+            <div style={{fontSize:11,fontWeight:700,color:'#94a3b8',marginBottom:6}}>CHALLENGE KPIs</div>
+            <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+              {c.kpis.map((k,i)=><span key={i} style={{fontSize:10,background:'#f0fdfa',color:'#0f766e',padding:'3px 9px',borderRadius:6,border:'1px solid #ccfbf1',fontWeight:600}}>{k.name}: {k.target} ({k.w}%)</span>)}
+            </div>
+          </Card>
+        ))}
+      </div>
+      <Modal open={showCreate} onClose={()=>setShowCreate(false)} title="Post New Challenge on GATI" wide>
+        {done?(
+          <div style={{textAlign:'center',padding:'36px 0'}}>
+            <div style={{fontSize:52,marginBottom:14}}>✅</div>
+            <div style={{fontSize:20,fontWeight:800,color:'#0f172a'}}>Challenge Posted!</div>
+            <div style={{fontSize:13,color:'#64748b',marginTop:6}}>Startups can now apply on the marketplace.</div>
+          </div>
+        ):(
+          <div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:4}}>
+              <Input label="Challenge Title" value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))} placeholder="e.g. AI for Water Quality"/>
+              <Input label="Department" value={form.dept} onChange={e=>setForm(f=>({...f,dept:e.target.value}))} placeholder="Department name"/>
+              <Select label="Sector" value={form.sector} onChange={e=>setForm(f=>({...f,sector:e.target.value}))} options={['Health','Agriculture','Water','Transport','Education','E-Gov']}/>
+              <Input label="Budget (INR)" type="number" value={form.budget} onChange={e=>setForm(f=>({...f,budget:e.target.value}))} placeholder="5000000"/>
+              <div style={{gridColumn:'1/-1'}}><Input label="Application Deadline" type="date" value={form.deadline} onChange={e=>setForm(f=>({...f,deadline:e.target.value}))}/></div>
+              <div style={{gridColumn:'1/-1'}}><Input label="Problem Description" rows={3} value={form.desc} onChange={e=>setForm(f=>({...f,desc:e.target.value}))} placeholder="Describe the problem…"/></div>
+            </div>
+            <div>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
+                <label style={{fontSize:12,fontWeight:700,color:'#374151'}}>Challenge KPIs</label>
+                <Btn variant="outline" size="sm" onClick={addKPI}>+ Add KPI</Btn>
+              </div>
+              {form.kpis.map((k,i)=>(
+                <div key={i} style={{display:'grid',gridTemplateColumns:'2fr 2fr 1fr',gap:8,marginBottom:8}}>
+                  <input placeholder="KPI Name" value={k.name} onChange={e=>{const kpis=[...form.kpis];kpis[i]={...kpis[i],name:e.target.value};setForm(f=>({...f,kpis}));}} style={{border:'1px solid #d1d5db',borderRadius:8,padding:'7px 10px',fontSize:12,fontFamily:'Inter,sans-serif'}}/>
+                  <input placeholder="Target" value={k.target} onChange={e=>{const kpis=[...form.kpis];kpis[i]={...kpis[i],target:e.target.value};setForm(f=>({...f,kpis}));}} style={{border:'1px solid #d1d5db',borderRadius:8,padding:'7px 10px',fontSize:12,fontFamily:'Inter,sans-serif'}}/>
+                  <input type="number" placeholder="Wt.%" value={k.w} onChange={e=>{const kpis=[...form.kpis];kpis[i]={...kpis[i],w:e.target.value};setForm(f=>({...f,kpis}));}} style={{border:'1px solid #d1d5db',borderRadius:8,padding:'7px 10px',fontSize:12,fontFamily:'Inter,sans-serif'}}/>
+                </div>
+              ))}
+            </div>
+            <div style={{display:'flex',justifyContent:'flex-end',gap:10,borderTop:'1px solid #e2e8f0',paddingTop:16,marginTop:12}}>
+              <Btn variant="outline" onClick={()=>setShowCreate(false)}>Cancel</Btn>
+              <Btn variant="teal" onClick={submit}>🚀 Post Challenge</Btn>
+            </div>
+          </div>
+        )}
+      </Modal>
+    </div>
+  );
+}
+
+function GovtApplications(){
+  const [sel,setSel]=useState(null);
+  return(
+    <div className="fade-in">
+      <div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px',marginBottom:24}}>Application Review</div>
+      <div style={{display:'flex',flexDirection:'column',gap:10}}>
+        {STARTUPS.map(s=>{
+          const ch=CHALLENGES.find(c=>c.id===s.cid);
+          return(
+            <Card key={s.id} style={{padding:16}}>
+              <div style={{display:'flex',alignItems:'center',gap:14}}>
+                <div style={{width:44,height:44,borderRadius:13,background:'#f0fdfa',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:800,color:'#0f766e',flexShrink:0}}>{s.name[0]}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:700,fontSize:14,color:'#0f172a'}}>{s.name}</div>
+                  <div style={{fontSize:11,color:'#94a3b8',marginTop:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{ch?.title} · 📍 {s.city} · DPIIT: {s.dpiit}</div>
+                </div>
+                <div style={{display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
+                  <Badge s={s.status} label={STAGE_LABEL[s.status]}/>
+                  {s.score>0&&<span style={{fontSize:12,fontWeight:700,color:'#374151'}}>Score: {s.score}/100</span>}
+                  <Btn variant="outline" size="sm" onClick={()=>setSel(s)}>Review →</Btn>
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+      <Modal open={!!sel} onClose={()=>setSel(null)} title={(sel?.name||'')+' – Application Detail'} wide>{sel&&<AppDetail s={sel}/>}</Modal>
+    </div>
+  );
+}
+
+function GovtMilestones(){
+  const [approved,setApproved]=useState([]);
+  const pending=STARTUPS.filter(s=>s.milestones?.length>0).flatMap(s=>s.milestones.filter(m=>m.status==='in-review').map(m=>({...m,startup:s.name,ch:CHALLENGES.find(c=>c.id===s.cid)?.title})));
+  const paid=STARTUPS.filter(s=>s.milestones?.length>0).flatMap(s=>s.milestones.filter(m=>m.status==='approved').map(m=>({...m,startup:s.name})));
+  return(
+    <div className="fade-in">
+      <div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px',marginBottom:10}}>Milestone Approvals</div>
+      <div style={{background:'#fef9c3',border:'1px solid #fde047',borderRadius:12,padding:'10px 16px',marginBottom:20,fontSize:13,color:'#713f12',fontWeight:500}}>⚠️ <strong>Payment Lock:</strong> PFMS/DBT disbursal is blocked until Department approves the milestone.</div>
+      <Card style={{marginBottom:16}}>
+        <div style={{fontWeight:800,fontSize:15,color:'#0f172a',marginBottom:14}}>Pending Approval <span style={{background:'#fef3c7',color:'#92400e',borderRadius:6,padding:'2px 8px',fontSize:12,fontWeight:700,marginLeft:6}}>{pending.length}</span></div>
+        {pending.length===0?<div style={{color:'#94a3b8',fontSize:13,padding:'16px 0'}}>No milestones pending.</div>:pending.map((m,i)=>(
+          <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 0',borderBottom:'1px solid #f1f5f9'}}>
+            <div>
+              <div style={{fontWeight:700,fontSize:14,color:'#0f172a'}}>{m.title}</div>
+              <div style={{fontSize:11,color:'#94a3b8',marginTop:3}}>{m.startup} · {m.ch}</div>
+              <div style={{fontSize:14,fontWeight:800,color:'#0f766e',marginTop:5}}>{inr(m.amt)}</div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:10}}>
+              {m.evidence&&<span style={{fontSize:10,background:'#dbeafe',color:'#1e40af',padding:'3px 9px',borderRadius:6,fontWeight:600}}>📎 Evidence</span>}
+              {approved.includes(m.id)?<span style={{fontSize:12,color:'#059669',fontWeight:700}}>✓ Payment triggered via PFMS</span>:<Btn variant="teal" size="sm" onClick={()=>setApproved(v=>[...v,m.id])}>✅ Approve & Trigger Payment</Btn>}
+            </div>
+          </div>
+        ))}
+      </Card>
+      <Card>
+        <div style={{fontWeight:800,fontSize:15,color:'#0f172a',marginBottom:14}}>Paid Milestones (PFMS/DBT)</div>
+        {paid.map((m,i)=>(
+          <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 0',borderBottom:'1px solid #f8fafc'}}>
+            <div><div style={{fontSize:13,fontWeight:600,color:'#0f172a'}}>{m.title}</div><div style={{fontSize:11,color:'#94a3b8'}}>{m.startup} · {m.due}</div></div>
+            <div style={{display:'flex',alignItems:'center',gap:12}}><span style={{fontWeight:800,fontSize:14,color:'#059669'}}>{inr(m.amt)}</span><Badge s="approved" label="PAID via PFMS"/></div>
+          </div>
+        ))}
+      </Card>
+    </div>
+  );
+}
+
+function GovtScaleUp(){
+  const [synced,setSynced]=useState([]);
+  const scaled=STARTUPS.filter(s=>s.status==='passed');
+  return(
+    <div className="fade-in">
+      <div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px',marginBottom:10}}>Scale-Up & GeM Procurement Sync</div>
+      <div style={{background:'#f0fdf4',border:'1px solid #86efac',borderRadius:14,padding:'14px 18px',marginBottom:24,display:'flex',alignItems:'center',gap:14}}>
+        <span style={{fontSize:28}}>🛒</span>
+        <div style={{flex:1}}><div style={{fontWeight:800,fontSize:15,color:'#065f46'}}>GeM-Style Procurement Integration</div><div style={{fontSize:12,color:'#047857',marginTop:3}}>Passed startups synced to Maharashtra state procurement list, visible to all departments.</div></div>
+        <span style={{fontSize:10,background:'#fef3c7',color:'#92400e',padding:'4px 12px',borderRadius:8,fontWeight:700,border:'1px solid #fde68a',whiteSpace:'nowrap'}}>Simulated</span>
+      </div>
+      {scaled.map(s=>{
+        const ch=CHALLENGES.find(c=>c.id===s.cid);
+        const isSynced=synced.includes(s.id);
+        return(
+          <Card key={s.id} style={{marginBottom:16,border:isSynced?'2px solid #86efac':'1px solid #e2e8f0'}}>
+            <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:14}}>
+              <div style={{display:'flex',alignItems:'center',gap:14}}>
+                <div style={{width:52,height:52,borderRadius:16,background:'#f0fdf4',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,fontWeight:900,color:'#059669'}}>{s.name[0]}</div>
+                <div>
+                  <div style={{fontWeight:900,fontSize:17,color:'#0f172a'}}>{s.name}</div>
+                  <div style={{fontSize:12,color:'#94a3b8',marginTop:2}}>📍 {s.city} · {s.founders}</div>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginTop:5}}><Badge s="passed" label="PILOT PASSED"/><span style={{fontSize:11,color:'#64748b'}}>Score: {s.score}/100</span></div>
+                </div>
+              </div>
+              <div style={{display:'flex',flexDirection:'column',gap:8,alignItems:'flex-end'}}>
+                {isSynced?<span style={{fontSize:12,background:'#dcfce7',color:'#166534',padding:'6px 14px',borderRadius:9,fontWeight:700,border:'1px solid #86efac'}}>✓ Synced to GeM List</span>:<Btn variant="teal" onClick={()=>setSynced(v=>[...v,s.id])}>🛒 Sync to GeM</Btn>}
+                <Btn variant="outline" size="sm">📝 Create New Contract</Btn>
+              </div>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10}}>
+              {[{l:'Challenge',v:ch?.title||'–'},{l:'Budget',v:inrL(ch?.budget||0)},{l:'Available To',v:'All MH Depts.'}].map(x=>(
+                <div key={x.l} style={{background:'#f8fafc',borderRadius:10,padding:'10px 14px'}}><div style={{fontSize:10,color:'#94a3b8',fontWeight:600}}>{x.l}</div><div style={{fontSize:12,fontWeight:700,color:'#0f172a',marginTop:3}}>{x.v}</div></div>
+              ))}
+            </div>
+            {isSynced&&<div style={{marginTop:12,background:'#f0fdf4',borderRadius:10,padding:'8px 14px',fontSize:12,color:'#059669',fontWeight:600}}>✓ Visible to: MSRDC, MMRDA, Jal Jeevan + 34 other agencies</div>}
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════
+   STARTUP SCREENS
+═══════════════════════════════════════ */
+function Marketplace(){
+  const [filter,setFilter]=useState('All');
+  const [search,setSearch]=useState('');
+  const [applied,setApplied]=useState([]);
+  const [showApply,setShowApply]=useState(null);
+  const sectors=['All','Health','Agriculture','Water','Transport','Education','E-Gov'];
+  const filtered=CHALLENGES.filter(c=>(filter==='All'||c.sector===filter)&&(search===''||c.title.toLowerCase().includes(search.toLowerCase())));
+  return(
+    <div className="fade-in">
+      <div style={{marginBottom:24}}><div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px'}}>GATI Challenge Marketplace</div><div style={{fontSize:13,color:'#64748b',marginTop:3}}>Browse and apply to government challenges across Maharashtra</div></div>
+      <div style={{display:'flex',gap:12,marginBottom:20,flexWrap:'wrap',alignItems:'center'}}>
+        <div style={{position:'relative',flex:1,minWidth:200}}>
+          <span style={{position:'absolute',left:11,top:'50%',transform:'translateY(-50%)',fontSize:15,color:'#94a3b8'}}>🔍</span>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search challenges…" style={{width:'100%',border:'1px solid #d1d5db',borderRadius:10,padding:'8px 12px 8px 34px',fontSize:13,fontFamily:'Inter,sans-serif',boxSizing:'border-box'}}/>
+        </div>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+          {sectors.map(s=><button key={s} onClick={()=>setFilter(s)} style={{padding:'6px 14px',borderRadius:8,border:'1px solid',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'Inter,sans-serif',background:filter===s?'#1d4ed8':'#fff',color:filter===s?'#fff':'#374151',borderColor:filter===s?'#1d4ed8':'#d1d5db'}}>{s}</button>)}
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+        {filtered.map(c=>(
+          <Card key={c.id} style={{border:applied.includes(c.id)?'2px solid #86efac':'1px solid #e2e8f0'}}>
+            <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:10}}>
+              <div>
+                <span style={{fontSize:10,fontWeight:700,background:SECTOR_COLOR[c.sector]+'20',color:SECTOR_COLOR[c.sector],padding:'3px 8px',borderRadius:6}}>{c.sector}</span>
+                <div style={{fontSize:15,fontWeight:800,color:'#0f172a',marginTop:8,lineHeight:1.3}}>{c.title}</div>
+                <div style={{fontSize:11,color:'#94a3b8',marginTop:3}}>{c.dept}</div>
+              </div>
+              <Badge s={c.status}/>
+            </div>
+            <div style={{fontSize:12,color:'#64748b',lineHeight:1.65,marginBottom:12}}>{c.desc}</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,marginBottom:12}}>
+              {[['💰 Budget',inrL(c.budget)],['⏳ Deadline',c.deadline],['📍 Location',c.city],['👥 Applied',c.apps+' startups']].map(([k,v])=>(
+                <div key={k} style={{background:'#f8fafc',borderRadius:8,padding:'8px 10px'}}><div style={{fontSize:10,color:'#94a3b8',fontWeight:500}}>{k}</div><div style={{fontSize:12,fontWeight:700,color:'#0f172a',marginTop:2}}>{v}</div></div>
+              ))}
+            </div>
+            <div style={{marginBottom:12}}><div style={{fontSize:11,fontWeight:700,color:'#94a3b8',marginBottom:5}}>CHALLENGE KPIs</div>{c.kpis.map((k,i)=><div key={i} style={{fontSize:11,color:'#374151',marginBottom:3}}>• {k.name}: <strong>{k.target}</strong> <span style={{color:'#94a3b8'}}>({k.w}% weight)</span></div>)}</div>
+            {c.status==='open'?(applied.includes(c.id)?(<div style={{textAlign:'center',padding:'9px',background:'#f0fdf4',color:'#059669',borderRadius:10,fontSize:13,fontWeight:700,border:'1px solid #bbf7d0'}}>✓ Application Submitted</div>):(<Btn variant="blue" onClick={()=>setShowApply(c)} style={{width:'100%',justifyContent:'center'}}>🚀 Apply Now</Btn>)):(<div style={{textAlign:'center',padding:'9px',background:'#f8fafc',color:'#94a3b8',borderRadius:10,fontSize:13}}>Applications Closed</div>)}
+          </Card>
+        ))}
+      </div>
+      <Modal open={!!showApply} onClose={()=>setShowApply(null)} title={`Apply – ${showApply?.title||''}`} wide>
+        <ApplyFlow ch={showApply} onDone={()=>{setApplied(v=>[...v,showApply?.id]);setShowApply(null);}}/>
+      </Modal>
+    </div>
+  );
+}
+
+function ApplyFlow({ch,onDone}){
+  const [step,setStep]=useState(0);
+  const [docs,setDocs]=useState(false);
+  const [done,setDone]=useState(false);
+  const [form,setForm]=useState({gstin:'27AABCH1234F1Z5',dpiit:'DIPP12345',desc:''});
+  if(done)return(<div style={{textAlign:'center',padding:'36px 0'}}><div style={{fontSize:52,marginBottom:14}}>🎉</div><div style={{fontSize:20,fontWeight:800,color:'#0f172a'}}>Application Submitted on GATI!</div><div style={{fontSize:13,color:'#64748b',marginTop:6}}>MSInS will begin Stage 1 screening within 2 business days.</div></div>);
+  return(
+    <div>
+      <Stepper steps={['Profile','Documents','Submit']} current={step}/>
+      {step===0&&(<div><Input label="GSTIN" value={form.gstin} onChange={e=>setForm(f=>({...f,gstin:e.target.value}))}/><Input label="DPIIT Recognition Number" value={form.dpiit} onChange={e=>setForm(f=>({...f,dpiit:e.target.value}))}/><Input label="Proposed Solution" rows={4} value={form.desc} onChange={e=>setForm(f=>({...f,desc:e.target.value}))} placeholder="Describe your approach…"/><Btn variant="blue" onClick={()=>setStep(1)} style={{width:'100%',justifyContent:'center'}}>Next →</Btn></div>)}
+      {step===1&&(<div><div onClick={()=>setDocs(true)} style={{border:`2px dashed ${docs?'#86efac':'#d1d5db'}`,borderRadius:14,padding:'28px',textAlign:'center',cursor:'pointer',marginBottom:14,background:docs?'#f0fdf4':'#fafafa'}}>{docs?(['DPIIT_Recognition.pdf','AuditedFinancials_FY24.pdf','IncorporationCert.pdf','PastProjects.pdf'].map(f=><div key={f} style={{display:'flex',alignItems:'center',gap:8,background:'#fff',border:'1px solid #e2e8f0',borderRadius:8,padding:'7px 12px',marginBottom:6,fontSize:12,textAlign:'left'}}>📄 {f}<span style={{marginLeft:'auto',color:'#10b981',fontWeight:800}}>✓</span></div>)):(  <><div style={{fontSize:32,marginBottom:8}}>📂</div><div style={{fontSize:14,color:'#64748b'}}>Click to upload documents</div></>)}</div><div style={{display:'flex',gap:10}}><Btn variant="outline" onClick={()=>setStep(0)}>← Back</Btn><Btn variant="blue" onClick={()=>setStep(2)} disabled={!docs} style={{flex:1,justifyContent:'center'}}>Next →</Btn></div></div>)}
+      {step===2&&(<div><div style={{background:'#eff6ff',border:'1px solid #bfdbfe',borderRadius:12,padding:16,marginBottom:16,fontSize:13}}><div style={{fontWeight:800,color:'#1e40af',marginBottom:10}}>Application Summary</div>{[['Challenge',ch?.title],['GSTIN',form.gstin],['DPIIT',form.dpiit],['Documents','4 files']].map(([k,v])=><div key={k} style={{color:'#1e40af',marginBottom:4}}>{k}: <strong>{v}</strong></div>)}</div><div style={{display:'flex',gap:10}}><Btn variant="outline" onClick={()=>setStep(1)}>← Back</Btn><Btn variant="blue" onClick={()=>{setDone(true);setTimeout(onDone,2000);}} style={{flex:1,justifyContent:'center'}}>✅ Submit Application</Btn></div></div>)}
+    </div>
+  );
+}
+
+function MyApplication(){
+  const s=STARTUPS[0];
+  const stageIdx={applied:0,stage1:1,stage2:2,stage3:3,contract:4,pilot:5,passed:5};
+  const paid=s.milestones.filter(m=>m.status==='approved').reduce((a,m)=>a+m.amt,0);
+  return(
+    <div className="fade-in">
+      <div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px',marginBottom:20}}>My Application</div>
+      <Card style={{marginBottom:16}}>
+        <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:20}}>
+          <div><div style={{fontSize:19,fontWeight:900,color:'#0f172a'}}>{s.name}</div><div style={{fontSize:13,color:'#64748b',marginTop:3}}>{CHALLENGES.find(c=>c.id===s.cid)?.title}</div></div>
+          <Badge s={s.status} label={s.status.toUpperCase()}/>
+        </div>
+        <Stepper steps={['Applied','Doc Check','URL Score','KPI Check','Contract','Pilot']} current={stageIdx[s.status]||5}/>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginTop:16}}>
+          <div style={{background:'#f0fdf4',borderRadius:12,padding:14,textAlign:'center',border:'1px solid #bbf7d0'}}><div style={{fontSize:26,fontWeight:900,color:'#059669'}}>{s.score}<span style={{fontSize:14,fontWeight:500}}>/100</span></div><div style={{fontSize:11,color:'#059669',marginTop:3,fontWeight:600}}>URL Score</div></div>
+          <div style={{background:'#eff6ff',borderRadius:12,padding:14,textAlign:'center',border:'1px solid #bfdbfe'}}><div style={{fontSize:26,fontWeight:900,color:'#1d4ed8'}}>{s.milestones.filter(m=>m.status==='approved').length}<span style={{fontSize:14,fontWeight:500}}>/{s.milestones.length}</span></div><div style={{fontSize:11,color:'#1d4ed8',marginTop:3,fontWeight:600}}>Milestones</div></div>
+          <div style={{background:'#faf5ff',borderRadius:12,padding:14,textAlign:'center',border:'1px solid #e9d5ff'}}><div style={{fontSize:20,fontWeight:900,color:'#7e22ce'}}>{inrL(paid)}</div><div style={{fontSize:11,color:'#7e22ce',marginTop:3,fontWeight:600}}>Received</div></div>
+        </div>
+      </Card>
+      <Card><div style={{fontWeight:800,fontSize:15,color:'#0f172a',marginBottom:14}}>Universal Readiness Level (URL)</div>{Object.entries(s.urlScores).map(([k,v])=><HBar key={k} label={k} value={v} max={100} color={v>=80?'#10b981':v>=70?'#3b82f6':'#f59e0b'}/>)}</Card>
+    </div>
+  );
+}
+
+function StartupContracts(){
+  const [ipSigned,setIpSigned]=useState(false);
+  const [paySigned,setPaySigned]=useState(false);
+  const [signing,setSigning]=useState(null);
+  const sign=type=>{setSigning(type);setTimeout(()=>{if(type==='ip')setIpSigned(true);else setPaySigned(true);setSigning(null);},2400);};
+  const contracts=[{key:'ip',title:'Intellectual Property Agreement',body:'This agreement governs IP ownership, licensing and commercialisation rights for any IP developed during the GATI pilot programme. The Government of Maharashtra retains a perpetual, royalty-free licence for government use. The startup retains commercial IP rights for all non-government deployments.',signed:ipSigned},{key:'pay',title:'Milestone Payment Contract',body:'A total of ₹75,00,000 shall be disbursed in four tranches linked to pilot milestones as per Schedule A. All payments shall be processed via PFMS and credited within 7 working days of milestone approval by the Department.',signed:paySigned}];
+  return(
+    <div className="fade-in">
+      <div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px',marginBottom:10}}>Contracts</div>
+      <div style={{background:'#eff6ff',border:'1px solid #bfdbfe',borderRadius:12,padding:'10px 18px',marginBottom:20,fontSize:13,color:'#1e40af',fontWeight:500}}>🔐 All contracts signed via <strong>eSign (Aadhaar OTP)</strong>. <span style={{color:'#3b82f6'}}>Simulated in prototype.</span></div>
+      {contracts.map(c=>(
+        <Card key={c.key} style={{marginBottom:16}}>
+          <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:14}}>
+            <div><div style={{fontSize:17,fontWeight:800,color:'#0f172a'}}>{c.title}</div><div style={{fontSize:11,color:'#94a3b8',marginTop:3}}>Contract ID: GATI-MH-2025-{c.key.toUpperCase()}-001 · MSInS</div></div>
+            <Badge s={c.signed?'approved':'pending'} label={c.signed?'SIGNED':'PENDING'}/>
+          </div>
+          <div style={{background:'#f8fafc',border:'1px solid #e2e8f0',borderRadius:12,padding:16,fontSize:12,color:'#374151',fontFamily:'monospace',lineHeight:1.8,marginBottom:16}}>{c.body}</div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',borderTop:'1px solid #f1f5f9',paddingTop:14}}>
+            <div style={{fontSize:11,color:'#94a3b8'}}>{c.signed?`✓ Signed · ${new Date().toLocaleDateString('en-IN')}`:'Awaiting your digital signature'}</div>
+            {!c.signed&&<Btn variant="blue" onClick={()=>sign(c.key)} disabled={signing===c.key}>{signing===c.key?<><span className="spin" style={{width:14,height:14,border:'2px solid #fff',borderTopColor:'transparent',borderRadius:'50%',display:'inline-block',marginRight:6}}/>Signing…</>:'✍️ Sign Digitally'}</Btn>}
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function PilotWorkspace(){
+  const s=STARTUPS[0];
+  const ch=CHALLENGES.find(c=>c.id===s.cid);
+  const [uploaded,setUploaded]=useState([]);
+  const [showEv,setShowEv]=useState(null);
+  return(
+    <div className="fade-in">
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}><div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px'}}>Pilot Workspace</div><Badge s="pilot" label="PILOT ACTIVE"/></div>
+      <div style={{background:'linear-gradient(135deg,#1e3a8a,#1d4ed8)',borderRadius:18,padding:22,color:'#fff',marginBottom:20}}><div style={{fontSize:11,opacity:0.65,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:6}}>Active GATI Pilot</div><div style={{fontSize:19,fontWeight:800,lineHeight:1.3}}>{ch?.title}</div><div style={{display:'flex',gap:18,marginTop:10,fontSize:12,opacity:0.85}}><span>📍 {ch?.city}, Maharashtra</span><span>⏳ Ends: 30 Jun 2025</span><span>💰 {inrL(ch?.budget||0)} total</span></div></div>
+      <div style={{fontWeight:800,fontSize:15,color:'#0f172a',marginBottom:12}}>Milestones</div>
+      {s.milestones.map((m,i)=>(
+        <Card key={m.id} style={{marginBottom:10,padding:16}}>
+          <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between'}}>
+            <div style={{display:'flex',alignItems:'center',gap:13}}>
+              <div style={{width:38,height:38,borderRadius:11,background:m.status==='approved'?'#dcfce7':m.status==='pending'?'#f1f5f9':'#fef3c7',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:15,color:m.status==='approved'?'#059669':'#374151',flexShrink:0}}>{i+1}</div>
+              <div><div style={{fontWeight:700,fontSize:14,color:'#0f172a'}}>{m.title}</div><div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>Due: {m.due} · {inr(m.amt)}</div></div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
+              <Badge s={m.status}/>
+              {m.status==='pending'&&!uploaded.includes(m.id)&&<Btn variant="blue" size="sm" onClick={()=>setShowEv(m)}>📤 Upload Evidence</Btn>}
+              {(m.evidence||uploaded.includes(m.id))&&<span style={{fontSize:11,color:'#1d4ed8',fontWeight:600}}>✓ Uploaded</span>}
+            </div>
+          </div>
+          {m.status==='approved'&&<div style={{marginTop:10,background:'#f0fdf4',borderRadius:9,padding:'8px 13px',fontSize:12,color:'#059669',fontWeight:600,border:'1px solid #bbf7d0'}}>✓ Approved · {inr(m.amt)} released via PFMS</div>}
+        </Card>
+      ))}
+      <Modal open={!!showEv} onClose={()=>setShowEv(null)} title="Upload Milestone Evidence">{showEv&&<EvidenceForm m={showEv} onDone={()=>{setUploaded(v=>[...v,showEv.id]);setShowEv(null);}}/>}</Modal>
+    </div>
+  );
+}
+
+function EvidenceForm({m,onDone}){
+  const [photos,setPhotos]=useState(false);
+  const [geo,setGeo]=useState(false);
+  const [done,setDone]=useState(false);
+  if(done)return(<div style={{textAlign:'center',padding:'30px 0'}}><div style={{fontSize:44,marginBottom:12}}>✅</div><div style={{fontSize:17,fontWeight:800,color:'#0f172a'}}>Evidence Submitted!</div><div style={{fontSize:13,color:'#64748b',marginTop:5}}>MSInS verifies the submitted evidence. Government approval triggers milestone payment.</div></div>);
+  return(
+    <div>
+      <div style={{background:'#eff6ff',borderRadius:10,padding:'9px 14px',fontSize:13,fontWeight:700,color:'#1e40af',marginBottom:16}}>{m.title}</div>
+      <div style={{marginBottom:14}}><div style={{fontSize:12,fontWeight:700,color:'#374151',marginBottom:8}}>Upload Photos & Documents</div><div onClick={()=>setPhotos(true)} style={{border:`2px dashed ${photos?'#86efac':'#d1d5db'}`,borderRadius:13,padding:'24px',textAlign:'center',cursor:'pointer',background:photos?'#f0fdf4':'#fafafa'}}>{photos?(['site_photo_1.jpg','site_photo_2.jpg','progress_report.pdf'].map(f=><div key={f} style={{display:'flex',alignItems:'center',gap:8,background:'#fff',border:'1px solid #e2e8f0',borderRadius:8,padding:'7px 12px',marginBottom:6,fontSize:12,textAlign:'left'}}>📄 {f}<span style={{marginLeft:'auto',color:'#10b981',fontWeight:800}}>✓</span></div>)):(  <><div style={{fontSize:28,marginBottom:8}}>📤</div><div style={{fontSize:13,color:'#94a3b8'}}>Click to upload</div></>)}</div></div>
+      <div style={{marginBottom:18}}><div style={{fontSize:12,fontWeight:700,color:'#374151',marginBottom:8}}>Geo-tag Location</div><div onClick={()=>setGeo(true)} style={{background:'#f8fafc',border:'1px solid #e2e8f0',borderRadius:12,padding:13,cursor:'pointer',display:'flex',alignItems:'center',gap:12}}><span style={{fontSize:22}}>📍</span>{geo?<div style={{fontSize:12}}><strong>Location:</strong> 18.5204° N, 73.8567° E · Pune, MH</div>:<div style={{fontSize:12,color:'#94a3b8'}}>Click to capture GPS (simulated)</div>}</div></div>
+      <Btn variant="blue" onClick={()=>{setDone(true);setTimeout(onDone,1600);}} disabled={!photos||!geo} style={{width:'100%',justifyContent:'center'}}>Submit Evidence</Btn>
+    </div>
+  );
+}
+
+function StartupPayments(){
+  const s=STARTUPS[0];
+  const total=s.milestones.reduce((a,m)=>a+m.amt,0);
+  const received=s.milestones.filter(m=>m.status==='approved').reduce((a,m)=>a+m.amt,0);
+  const pct=Math.round((received/total)*100);
+  return(
+    <div className="fade-in">
+      <div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px',marginBottom:20}}>Payments</div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:16}}>
+        <Card style={{textAlign:'center',background:'linear-gradient(135deg,#eff6ff,#dbeafe)'}}><div style={{fontSize:24,fontWeight:900,color:'#1d4ed8'}}>{inrL(received)}</div><div style={{fontSize:12,color:'#2563eb',marginTop:4,fontWeight:600}}>Received</div></Card>
+        <Card style={{textAlign:'center'}}><div style={{fontSize:24,fontWeight:900,color:'#b45309'}}>{inrL(total-received)}</div><div style={{fontSize:12,color:'#b45309',marginTop:4,fontWeight:600}}>Pending</div></Card>
+        <Card style={{textAlign:'center'}}><div style={{fontSize:24,fontWeight:900,color:'#374151'}}>{inrL(total)}</div><div style={{fontSize:12,color:'#64748b',marginTop:4,fontWeight:600}}>Total Contract</div></Card>
+      </div>
+      <Card style={{marginBottom:16}}>
+        <div style={{fontWeight:800,fontSize:15,marginBottom:14}}>Progress</div>
+        <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:6}}><span>Total disbursed</span><span style={{fontWeight:800}}>{pct}%</span></div>
+        <div style={{height:16,background:'#e2e8f0',borderRadius:99,overflow:'hidden'}}><div style={{height:'100%',width:pct+'%',background:'linear-gradient(90deg,#1d4ed8,#3b82f6)',borderRadius:99}}/></div>
+        <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#94a3b8',marginTop:5}}><span>{inr(received)} received</span><span>{inr(total)} total</span></div>
+      </Card>
+      <Card>
+        <div style={{fontWeight:800,fontSize:15,marginBottom:14}}>Payment Timeline</div>
+        {s.milestones.map(m=>(
+          <div key={m.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 0',borderBottom:'1px solid #f8fafc'}}>
+            <div><div style={{fontSize:13,fontWeight:600,color:'#0f172a'}}>{m.title}</div><div style={{fontSize:11,color:'#94a3b8'}}>Due: {m.due}</div></div>
+            <div style={{display:'flex',alignItems:'center',gap:14}}><span style={{fontWeight:800,fontSize:14,color:m.status==='approved'?'#059669':'#374151'}}>{inr(m.amt)}</span><Badge s={m.status==='approved'?'passed':m.status} label={m.status==='approved'?'PAID':m.status.toUpperCase()}/></div>
+          </div>
+        ))}
+      </Card>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════
+   ADMIN SCREENS
+═══════════════════════════════════════ */
+function AdminDashboard(){
+  const stageData=[{label:'Applied',value:1,color:'#3b82f6'},{label:'Stage 1',value:1,color:'#8b5cf6'},{label:'Stage 2',value:2,color:'#f59e0b'},{label:'Stage 3',value:1,color:'#06b6d4'},{label:'Contract',value:1,color:'#0d9488'},{label:'Pilot',value:1,color:'#4f46e5'},{label:'Passed',value:2,color:'#10b981'},{label:'Rejected',value:2,color:'#ef4444'}];
+  const pie=[{label:'Passed',value:2,color:'#10b981'},{label:'Potential',value:1,color:'#f59e0b'},{label:'Failed',value:1,color:'#ef4444'},{label:'Rejected',value:2,color:'#94a3b8'},{label:'Pipeline',value:6,color:'#3b82f6'}];
+  return(
+    <div className="fade-in">
+      <div style={{marginBottom:24}}><div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px'}}>MSInS MSInS Dashboard</div><div style={{fontSize:13,color:'#64748b',marginTop:3}}>Maharashtra Centre of Innovation and Startups · GATI Platform</div></div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:20}}>
+        <StatCard icon="👥" label="Total Startups" value="12" sub="All 6 challenges" accentColor="#7e22ce"/>
+        <StatCard icon="📁" label="Active Screening" value="4" sub="Stages 1–3" accentColor="#3b82f6"/>
+        <StatCard icon="📜" label="Contracts Active" value="4" sub="Signed & in pilot" accentColor="#0f766e"/>
+        <StatCard icon="🏆" label="Pilot Outcomes" value="4" sub="Passed+Potential+Failed" accentColor="#f59e0b"/>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+        <Card><div style={{fontWeight:800,fontSize:15,color:'#0f172a',marginBottom:16}}>Pipeline by Stage</div><BarChart data={stageData} height={180}/></Card>
+        <Card><div style={{fontWeight:800,fontSize:15,color:'#0f172a',marginBottom:16}}>Outcome Distribution</div><div style={{display:'flex',alignItems:'center',gap:20}}><DonutChart data={pie} size={130}/><div style={{flex:1}}>{pie.map(d=><div key={d.label} style={{display:'flex',alignItems:'center',gap:8,marginBottom:9}}><div style={{width:10,height:10,borderRadius:3,background:d.color,flexShrink:0}}/><span style={{fontSize:12,color:'#374151',flex:1}}>{d.label}</span><span style={{fontSize:14,fontWeight:800,color:'#0f172a'}}>{d.value}</span></div>)}</div></div></Card>
+      </div>
+    </div>
+  );
+}
+
+function Pipeline(){
+  const cols=[{key:'applied',label:'Applied',color:'#3b82f6'},{key:'screening',label:'Screening',color:'#8b5cf6'},{key:'contract',label:'Contract',color:'#0d9488'},{key:'pilot',label:'Pilot',color:'#4f46e5'},{key:'done',label:'Completed',color:'#10b981'}];
+  const toCol=s=>({applied:'applied',stage1:'screening',stage2:'screening',stage3:'screening',contract:'contract',pilot:'pilot',passed:'done',potential:'done',failed:'done',rejected:'done'}[s]||'applied');
+  return(
+    <div className="fade-in">
+      <div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px',marginBottom:20}}>Application Pipeline</div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:12}}>
+        {cols.map(col=>(
+          <div key={col.key} style={{minWidth:160}}>
+            <div style={{background:col.color,color:'#fff',borderRadius:11,padding:'9px 13px',fontSize:12,fontWeight:800,marginBottom:10,display:'flex',alignItems:'center',justifyContent:'space-between'}}>{col.label}<span style={{background:'rgba(255,255,255,0.25)',borderRadius:6,padding:'1px 8px'}}>{STARTUPS.filter(s=>toCol(s.status)===col.key).length}</span></div>
+            {STARTUPS.filter(s=>toCol(s.status)===col.key).map(s=>(
+              <Card key={s.id} style={{padding:11,marginBottom:8,cursor:'pointer',border:`1px solid ${col.color}25`}}>
+                <div style={{fontWeight:700,fontSize:12,color:'#0f172a',marginBottom:4,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.name}</div>
+                <div style={{fontSize:10,color:'#94a3b8',marginBottom:7}}>{CHALLENGES.find(c=>c.id===s.cid)?.sector}</div>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}><Badge s={s.status} label={s.status.slice(0,7).toUpperCase()}/>{s.score>0&&<span style={{fontSize:10,fontWeight:800,color:'#374151'}}>{s.score}</span>}</div>
+              </Card>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Screening(){
+  const [sel,setSel]=useState(STARTUPS[0]);
+  return(
+    <div className="fade-in">
+      <div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px',marginBottom:20}}>Screening – All Stages</div>
+      <div style={{display:'grid',gridTemplateColumns:'230px 1fr',gap:16}}>
+        <div style={{display:'flex',flexDirection:'column',gap:6}}>
+          {STARTUPS.map(s=>(
+            <button key={s.id} onClick={()=>setSel(s)} style={{textAlign:'left',padding:'10px 13px',borderRadius:13,border:`2px solid ${sel?.id===s.id?'#7e22ce':'#e2e8f0'}`,background:sel?.id===s.id?'#faf5ff':'#fff',cursor:'pointer',fontFamily:'Inter,sans-serif'}}>
+              <div style={{fontSize:12,fontWeight:700,color:'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.name}</div>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:5}}><span style={{fontSize:10,color:'#94a3b8'}}>{s.city}</span><Badge s={s.status}/></div>
+            </button>
+          ))}
+        </div>
+        <div>{sel&&<Card><AppDetail s={sel}/></Card>}</div>
+      </div>
+    </div>
+  );
+}
+
+function AdminContracts(){
+  return(
+    <div className="fade-in">
+      <div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px',marginBottom:20}}>Contract Management</div>
+      <div style={{display:'flex',flexDirection:'column',gap:10}}>
+        {STARTUPS.filter(s=>['contract','pilot','passed','potential','failed'].includes(s.status)).map(s=>{
+          const ch=CHALLENGES.find(c=>c.id===s.cid);
+          return(
+            <Card key={s.id} style={{padding:16}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <div><div style={{fontWeight:700,fontSize:14,color:'#0f172a'}}>{s.name}</div><div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>{ch?.title} · IP + Payment · {inrL(ch?.budget||0)}</div></div>
+                <div style={{display:'flex',alignItems:'center',gap:10}}><Badge s={s.status}/><Btn variant="outline" size="sm">View</Btn><Btn variant="purple" size="sm">📥 PDF</Btn></div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function Rankings(){
+  const pilots=STARTUPS.filter(s=>['passed','potential','failed'].includes(s.status)).sort((a,b)=>b.score-a.score);
+  const rankStyle={passed:{bg:'#f0fdf4',border:'#86efac',nc:'#059669'},potential:{bg:'#fefce8',border:'#fde047',nc:'#ca8a04'},failed:{bg:'#fef2f2',border:'#fca5a5',nc:'#dc2626'}};
+  return(
+    <div className="fade-in">
+      <div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px',marginBottom:20}}>Pilot Rankings</div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:20}}>
+        {[{t:'Passed',v:2,c:'#059669',bg:'#f0fdf4'},{t:'Potential',v:1,c:'#ca8a04',bg:'#fefce8'},{t:'Failed',v:1,c:'#dc2626',bg:'#fef2f2'}].map(x=><Card key={x.t} style={{textAlign:'center',background:x.bg}}><div style={{fontSize:38,fontWeight:900,color:x.c}}>{x.v}</div><div style={{fontSize:14,fontWeight:700,color:x.c}}>{x.t}</div></Card>)}
+      </div>
+      {pilots.map((s,i)=>{
+        const ch=CHALLENGES.find(c=>c.id===s.cid);
+        const rs=rankStyle[s.status]||rankStyle.failed;
+        return(
+          <div key={s.id} style={{background:rs.bg,border:`2px solid ${rs.border}`,borderRadius:16,padding:18,display:'flex',alignItems:'center',gap:16,marginBottom:12}}>
+            <div style={{width:46,height:46,borderRadius:14,background:'#fff',border:`2px solid ${rs.border}`,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:20,color:rs.nc,flexShrink:0}}>#{i+1}</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontWeight:900,fontSize:16,color:'#0f172a'}}>{s.name}</div>
+              <div style={{fontSize:12,color:'#64748b',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{ch?.title} · 📍 {s.city}</div>
+              <div style={{display:'flex',alignItems:'center',gap:8,marginTop:5}}>
+                <Badge s={s.status} label={s.status.toUpperCase()}/>
+                <span style={{fontSize:11,color:'#64748b'}}>Score: {s.score}/100</span>
+                {s.status==='potential'&&<span style={{fontSize:11,background:'#fef3c7',color:'#92400e',padding:'2px 9px',borderRadius:6,border:'1px solid #fde68a',fontWeight:700}}>Open to Hire</span>}
+                {s.status==='failed'&&<span style={{fontSize:11,background:'#f3f4f6',color:'#6b7280',padding:'2px 9px',borderRadius:6,border:'1px solid #e2e8f0',fontWeight:700}}>Archived</span>}
+              </div>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6}}>
+              {['Technology','Team','Financial','Scalability'].map(k=><div key={k} style={{background:'#fff',borderRadius:8,padding:'7px 9px',textAlign:'center',border:'1px solid #e2e8f0'}}><div style={{fontSize:9,color:'#94a3b8',fontWeight:600}}>{k.slice(0,5).toUpperCase()}</div><div style={{fontSize:14,fontWeight:800,color:'#374151',marginTop:2}}>{s.urlScores[k]||0}</div></div>)}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function AuditLog(){
+  const [flagged,setFlagged]=useState([]);
+  const [auditing,setAuditing]=useState(false);
+  const doAudit=()=>{setAuditing(true);setTimeout(()=>{const ps=STARTUPS.filter(s=>s.status==='pilot'||s.status==='passed');setFlagged(v=>[...v,ps[Math.floor(Math.random()*ps.length)]?.id]);setAuditing(false);},1500);};
+  const roleColor={govt:'#0f766e',startup:'#1d4ed8',admin:'#7e22ce'};
+  const typeIcon={create:'📝',apply:'📤',screen:'🔎',contract:'📜',milestone:'✅',payment:'💳',audit:'🚩',visit:'📍'};
+  return(
+    <div className="fade-in">
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}><div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px'}}>Audit Log</div><Btn variant="amber" onClick={doAudit} disabled={auditing}>{auditing?<><span className="spin" style={{width:14,height:14,border:'2px solid #fff',borderTopColor:'transparent',borderRadius:'50%',display:'inline-block',marginRight:6}}/>Selecting…</>:'🚩 Random Audit'}</Btn></div>
+      {flagged.length>0&&<div style={{background:'#fff7ed',border:'2px solid #fed7aa',borderRadius:14,padding:'14px 18px',marginBottom:16}}><div style={{fontWeight:800,color:'#9a3412',marginBottom:6}}>🚩 Flagged for Audit</div>{flagged.map(id=>{const s=STARTUPS.find(x=>x.id===id);return s?<div key={id} style={{fontSize:13,color:'#c2410c'}}>→ {s.name} – Pilot under random audit review</div>:null;})}</div>}
+      <Card style={{padding:0,overflow:'hidden'}}>
+        <div style={{maxHeight:540,overflowY:'auto'}}>
+          {AUDIT_LOG.map(log=>(
+            <div key={log.id} style={{display:'flex',alignItems:'flex-start',gap:14,padding:'13px 20px',borderBottom:'1px solid #f8fafc'}}>
+              <div style={{width:34,height:34,borderRadius:10,background:'#f1f5f9',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>{typeIcon[log.type]||'•'}</div>
+              <div style={{flex:1,minWidth:0}}><span style={{fontWeight:700,fontSize:13,color:roleColor[log.role]||'#374151'}}>{log.actor} </span><span style={{fontSize:13,color:'#374151'}}>{log.action}</span></div>
+              <div style={{fontSize:11,color:'#94a3b8',whiteSpace:'nowrap',flexShrink:0}}>{log.ts}</div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════
+   MSInS PILOT VERIFICATION SCREENS
+═══════════════════════════════════════ */
+function AssignedPilots({setPage}){
+  return(
+    <div className="fade-in">
+      <div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px',marginBottom:20}}>Assigned Pilots</div>
+      {STARTUPS.filter(s=>s.status==='pilot'||s.status==='passed').slice(0,3).map(s=>{
+        const ch=CHALLENGES.find(c=>c.id===s.cid);
+        const done=s.milestones.filter(m=>m.status==='approved').length;
+        const tot=s.milestones.length||1;
+        return(
+          <Card key={s.id} style={{marginBottom:14,padding:18}}>
+            <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:14}}>
+              <div><div style={{fontWeight:900,fontSize:17,color:'#0f172a'}}>{s.name}</div><div style={{fontSize:13,color:'#64748b',marginTop:2}}>{ch?.title}</div><div style={{fontSize:11,color:'#94a3b8',marginTop:3}}>📍 {ch?.city}, Maharashtra</div></div>
+              <Badge s={s.status}/>
+            </div>
+            <div style={{marginBottom:14}}>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#94a3b8',marginBottom:5}}><span>Milestone Progress</span><span>{done}/{tot}</span></div>
+              <div style={{height:9,background:'#e2e8f0',borderRadius:99,overflow:'hidden'}}><div style={{height:'100%',width:Math.round((done/tot)*100)+'%',background:'#0d9488',borderRadius:99}}/></div>
+            </div>
+            <div style={{display:'flex',gap:10}}><Btn variant="purple" size="sm" onClick={()=>setPage('Evidence Review')}>👁️ Review Evidence</Btn><Btn variant="outline" size="sm" onClick={()=>setPage('Site Visits')}>📍 Log Site Visit</Btn></div>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
+
+function EvidenceReview(){
+  const s=STARTUPS[0];
+  const ch=CHALLENGES.find(c=>c.id===s.cid);
+  const [scores,setScores]=useState({});
+  const [submitted,setSubmitted]=useState({});
+  return(
+    <div className="fade-in">
+      <div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px',marginBottom:20}}>Evidence Review</div>
+      {s.milestones.filter(m=>m.evidence).map(m=>(
+        <Card key={m.id} style={{marginBottom:16}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}><div><div style={{fontWeight:800,fontSize:15,color:'#0f172a'}}>{m.title}</div><div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>{s.name} · Due {m.due}</div></div><Badge s={m.status}/></div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:14}}>{['site_photo_1.jpg','site_photo_2.jpg','progress_report.pdf'].map(f=><div key={f} style={{background:'#f1f5f9',borderRadius:10,aspectRatio:'16/9',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,color:'#94a3b8',border:'1px solid #e2e8f0'}}>{f.endsWith('.jpg')?'📷 Photo':'📄 PDF'}</div>)}</div>
+          <div style={{background:'#eff6ff',borderRadius:10,padding:'9px 14px',marginBottom:14,fontSize:12,color:'#1e40af',border:'1px solid #bfdbfe'}}>📍 Geo-tagged: <strong>18.5204° N, 73.8567° E</strong> · Pune PHC Cluster · 2025-06-30 09:15</div>
+          {!submitted[m.id]?(
+            <div>
+              <div style={{fontWeight:700,fontSize:13,color:'#1e293b',marginBottom:12}}>Score KPIs (MSInS Verification)</div>
+              {ch?.kpis.map(k=><div key={k.name} style={{display:'flex',alignItems:'center',gap:13,marginBottom:12}}><span style={{fontSize:12,color:'#374151',width:130,flexShrink:0}}>{k.name}</span><input type="range" min={0} max={100} value={scores[k.name]||50} onChange={e=>setScores(v=>({...v,[k.name]:Number(e.target.value)}))} style={{flex:1,accentColor:'#0369a1'}}/><span style={{fontSize:14,fontWeight:800,width:32,textAlign:'right'}}>{scores[k.name]||50}</span></div>)}
+              <div style={{display:'flex',justifyContent:'flex-end',marginTop:10}}><Btn variant="purple" onClick={()=>setSubmitted(v=>({...v,[m.id]:true}))}>✅ Submit KPI Scores</Btn></div>
+            </div>
+          ):<div style={{background:'#f0fdf4',borderRadius:10,padding:'10px 14px',fontSize:13,color:'#059669',fontWeight:700,border:'1px solid #bbf7d0'}}>✓ KPI scores submitted</div>}
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function SiteVisits(){
+  const [done,setDone]=useState(false);
+  const [form,setForm]=useState({notes:'',score:''});
+  if(done)return(<div className="fade-in"><Card style={{textAlign:'center',padding:'52px 24px'}}><div style={{fontSize:52,marginBottom:14}}>✅</div><div style={{fontSize:22,fontWeight:800,color:'#0f172a'}}>Visit Logged on GATI</div><div style={{fontSize:13,color:'#64748b',marginTop:8}}>Recorded in immutable audit trail.</div><Btn variant="purple" onClick={()=>setDone(false)} style={{marginTop:20}}>Log Another Visit</Btn></Card></div>);
+  return(
+    <div className="fade-in">
+      <div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px',marginBottom:16}}>Log Surprise Site Visit</div>
+      <Card>
+        <div style={{background:'#f0f9ff',border:'1px solid #bae6fd',borderRadius:12,padding:'11px 16px',marginBottom:18,fontSize:13,color:'#0369a1',fontWeight:600}}>🚗 Surprise Visit – Timestamped in GATI's immutable audit trail.</div>
+        <div style={{marginBottom:14}}><label style={{display:'block',fontSize:12,fontWeight:700,color:'#374151',marginBottom:6}}>Startup / Pilot</label><select style={{width:'100%',border:'1px solid #d1d5db',borderRadius:10,padding:'8px 12px',fontSize:13,fontFamily:'Inter,sans-serif',background:'#fff'}}>{STARTUPS.filter(s=>s.status==='pilot'||s.status==='passed').map(s=><option key={s.id}>{s.name}</option>)}</select></div>
+        <Input label="Visit Date & Time" type="datetime-local" value={form.dt} onChange={e=>setForm(f=>({...f,dt:e.target.value}))}/>
+        <div style={{marginBottom:14}}><label style={{display:'block',fontSize:12,fontWeight:700,color:'#374151',marginBottom:6}}>Location (GPS – Simulated)</label><div style={{background:'#f8fafc',border:'1px solid #e2e8f0',borderRadius:10,padding:'10px 13px',fontSize:13,color:'#64748b',display:'flex',alignItems:'center',gap:8}}>📍 <span style={{fontFamily:'monospace'}}>18.5204° N, 73.8567° E</span> · Pune, Maharashtra</div></div>
+        <Input label="Field Observations" rows={4} value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))} placeholder="Describe on-site observations…"/>
+        <Input label="Overall Site Score (0–100)" type="number" value={form.score} onChange={e=>setForm(f=>({...f,score:e.target.value}))} placeholder="e.g. 87"/>
+        <Btn variant="purple" onClick={()=>setDone(true)} style={{width:'100%',justifyContent:'center'}}>📍 Submit Visit Report</Btn>
+      </Card>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════
+   SHARED SCREENS
+═══════════════════════════════════════ */
+function Directory(){
+  const listed=STARTUPS.filter(s=>s.status==='passed'||s.status==='potential');
+  return(
+    <div className="fade-in">
+      <div style={{marginBottom:24}}><div style={{fontSize:24,fontWeight:900,color:'#0f172a',letterSpacing:'-0.5px'}}>GATI Startup Directory</div><div style={{fontSize:13,color:'#64748b',marginTop:3}}>Public listing of Passed and Potential startups</div></div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+        {listed.map(s=>{
+          const ch=CHALLENGES.find(c=>c.id===s.cid);
+          return(
+            <Card key={s.id} style={{border:`2px solid ${s.status==='passed'?'#86efac':'#fde047'}`}}>
+              <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:12}}>
+                <div style={{display:'flex',alignItems:'center',gap:13}}>
+                  <div style={{width:48,height:48,borderRadius:15,background:s.status==='passed'?'#f0fdf4':'#fefce8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:900,color:s.status==='passed'?'#059669':'#ca8a04'}}>{s.name[0]}</div>
+                  <div><div style={{fontWeight:800,fontSize:15,color:'#0f172a'}}>{s.name}</div><div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>📍 {s.city} · {s.founders.split(',')[0]}</div></div>
+                </div>
+                <Badge s={s.status} label={s.status==='passed'?'✓ PASSED':'OPEN TO HIRE'}/>
+              </div>
+              <div style={{fontSize:12,color:'#64748b',background:'#f8fafc',borderRadius:9,padding:'7px 11px',marginBottom:14}}>{ch?.title}</div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:14}}>
+                {[['Score',s.score+'/100'],['Milestones',s.milestones.filter(m=>m.status==='approved').length+'/'+s.milestones.length],['Budget',inrL(ch?.budget||0)]].map(([k,v])=><div key={k} style={{background:'#f8fafc',borderRadius:9,padding:'9px',textAlign:'center'}}><div style={{fontSize:13,fontWeight:800,color:'#0f172a'}}>{v}</div><div style={{fontSize:10,color:'#94a3b8',marginTop:2}}>{k}</div></div>)}
+              </div>
+              <div style={{display:'flex',gap:8}}><Btn variant="outline" size="sm" style={{flex:1,justifyContent:'center'}}>View Profile</Btn><Btn variant="emerald" size="sm" style={{flex:1,justifyContent:'center'}}>🤝 Engage</Btn></div>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function About(){
+  const stack=[{l:'Frontend',t:'React 18 · Custom SVG Charts',i:'🖥️'},{l:'API Gateway',t:'Node.js (Express) – Auth & Routing',i:'🔀'},{l:'Core Services',t:'Django (Python) – Business Logic',i:'⚙️'},{l:'Database',t:'PostgreSQL + Redis (Cache)',i:'🗄️'},{l:'Audit Trail',t:'Immutable append-only ledger',i:'📋'},{l:'Auth',t:'OAuth2 / SSO via Maha-SSO',i:'🔐'},{l:'Infrastructure',t:'Maharashtra State Data Centre',i:'☁️'}];
+  const integrations=[{n:'DPIIT / Startup India API',p:'Startup recognition verification',v:'API Setu'},{n:'Mahaswayam Portal',p:'GST & employment verification',v:'State API'},{n:'Procurement / GeM',p:'Scale-up / procurement workflow',v:'GeM API'},{n:'PFMS / DBT',p:'Milestone payment disbursement',v:'PFMS API'},{n:'eSign (Aadhaar OTP)',p:'Digital contract signatures',v:'NeSL / NSDL'},{n:'MahaGeo / Bhuvan',p:'Geo-tagging & location',v:'ISRO Bhuvan'}];
+  return(
+    <div className="fade-in" style={{maxWidth:820}}>
+      <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:24}}>
+        <div style={{width:56,height:56,borderRadius:18,background:'linear-gradient(135deg,#14b8a6,#0d9488)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:900,fontSize:26}}>G</div>
+        <div><div style={{fontSize:30,fontWeight:900,color:'#0f172a',letterSpacing:'-1px'}}>GATI</div><div style={{fontSize:13,color:'#64748b'}}>GovTech Accelerator & Tech Innovation Platform · Govt. of Maharashtra © 2025</div></div>
+      </div>
+      <div style={{background:'#0f172a',borderRadius:18,padding:22,marginBottom:22}}>
+        <div style={{color:'#fff',fontWeight:800,fontSize:16,marginBottom:16}}>Architecture Overview</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>{stack.map(s=><div key={s.l} style={{display:'flex',alignItems:'center',gap:13,background:'rgba(255,255,255,0.07)',borderRadius:12,padding:'11px 15px'}}><span style={{fontSize:24}}>{s.i}</span><div><div style={{fontSize:13,fontWeight:700,color:'#fff'}}>{s.l}</div><div style={{fontSize:11,color:'rgba(255,255,255,0.45)',marginTop:2}}>{s.t}</div></div></div>)}</div>
+      </div>
+      <div style={{fontWeight:800,fontSize:17,color:'#0f172a',marginBottom:14}}>External Integrations</div>
+      <div style={{display:'flex',flexDirection:'column',gap:9,marginBottom:22}}>
+        {integrations.map(i=><div key={i.n} style={{display:'flex',alignItems:'center',justifyContent:'space-between',background:'#fff',border:'1px solid #e2e8f0',borderRadius:13,padding:'13px 18px'}}><div><div style={{fontWeight:700,fontSize:14,color:'#0f172a'}}>{i.n}</div><div style={{fontSize:11,color:'#94a3b8'}}>{i.p} · via {i.v}</div></div><span style={{fontSize:10,background:'#fef3c7',color:'#92400e',padding:'4px 12px',borderRadius:8,fontWeight:800,border:'1px solid #fde68a',whiteSpace:'nowrap'}}>SIMULATED</span></div>)}
+      </div>
+    </div>
+  );
+}
+
+function SolutionWorkflow(){
+  const steps=[
+    ['1','Government Challenge','Government posts problem statement, budget and challenge-specific KPIs.'],
+    ['2','Startup Registration & Apply','Startup registers, lists capabilities and applies to relevant challenges.'],
+    ['3','MSInS Eligibility Screening','Document verification → Universal Readiness Level (URL) → challenge KPI check.'],
+    ['4','Digital Contracts','IP contract + payment contract + required agreements are digitally signed before pilot.'],
+    ['5','Pilot & Milestones','Approved startup runs pilot; evidence, milestones and impact data are recorded on-platform.'],
+    ['6','Verified Impact → Scale / Procure','After verified impact, Government can move the solution to scale-up / procurement; MSInS retains the audit trail.']
+  ];
+  return <div className="workflow-strip">{steps.map(s=><div className="workflow-step" key={s[0]}><strong>{s[0]}. {s[1]}</strong><span>{s[2]}</span></div>)}</div>;
+}
+
+/* ═══════════════════════════════════════
+   MAIN APP
+═══════════════════════════════════════ */
+function App(){
+  const [authState,setAuthState]=useState('auth'); // auth | app
+  const [role,setRole]=useState(null);
+  const [user,setUser]=useState(null);
+  const [page,setPage]=useState('Dashboard');
+  const [mobileMenuOpen,setMobileMenuOpen]=useState(false);
+
+  const handleLogin=(r,u)=>{
+    setRole(r);setUser(u);
+    const defaults={govt:'Dashboard',startup:'Marketplace',admin:'Dashboard'};
+    setPage(defaults[r]||'Dashboard');
+    setAuthState('app');
+  };
+
+  const handleSetRole=r=>{
+    setRole(r);
+    const defaults={govt:'Dashboard',startup:'Marketplace',admin:'Dashboard'};
+    setPage(defaults[r]||'Dashboard');
+  };
+
+  const handleLogout=()=>{setAuthState('auth');setRole(null);setUser(null);};
+
+  if(authState==='auth') return <AuthPage onLogin={handleLogin}/>;
+
+  const renderPage=()=>{
+    if(role==='govt'){
+      if(page==='Dashboard')return <GovtDashboard setPage={setPage}/>;
+      if(page==='Challenges')return <GovtChallenges/>;
+      if(page==='Applications')return <GovtApplications/>;
+      if(page==='Milestone Approvals')return <GovtMilestones/>;
+      if(page==='Scale-Up')return <GovtScaleUp/>;
+    }
+    if(role==='startup'){
+      if(page==='Marketplace')return <Marketplace/>;
+      if(page==='My Application')return <MyApplication/>;
+      if(page==='Contracts')return <StartupContracts/>;
+      if(page==='Pilot Workspace')return <PilotWorkspace/>;
+      if(page==='Payments')return <StartupPayments/>;
+    }
+    if(role==='admin'){
+      if(page==='Dashboard')return <AdminDashboard/>;
+      if(page==='Pipeline')return <Pipeline/>;
+      if(page==='Screening')return <Screening/>;
+      if(page==='Contracts')return <AdminContracts/>;
+      if(page==='Pilot Verification')return <EvidenceReview/>;
+      if(page==='Audit Log')return <AuditLog/>;
+    }
+    if(page==='Directory')return <Directory/>;
+    if(page==='About')return <About/>;
+    return <div style={{color:'#94a3b8',padding:40}}>Screen not found.</div>;
+  };
+
+  return(
+    <div style={{minHeight:'100vh',background:'#f1f5f9'}}>
+      <TopBar role={role} setRole={handleSetRole} setPage={setPage} user={user} onLogout={handleLogout} onMenu={()=>setMobileMenuOpen(v=>!v)}/>
+      <Sidebar role={role} page={page} setPage={setPage} mobileOpen={mobileMenuOpen} onClose={()=>setMobileMenuOpen(false)}/>
+      <main className="app-main">
+        <div className="app-content">
+          <SolutionWorkflow/>
+          {renderPage()}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
